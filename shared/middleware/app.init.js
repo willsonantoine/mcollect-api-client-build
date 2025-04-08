@@ -12,6 +12,8 @@ const body_parser_1 = __importDefault(require("body-parser"));
 const path_1 = __importDefault(require("path"));
 const compression_1 = __importDefault(require("compression"));
 const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
+// Définir le chemin absolu vers le dossier "uploads"
+const uploadsPath = path_1.default.join(__dirname, "../uploads");
 const AppInit = (app) => {
     // Configuration du proxy
     app.set("trust proxy", true);
@@ -39,13 +41,13 @@ const AppInit = (app) => {
         message: "Too many requests from this IP, please try again later.",
     });
     app.use(limiter);
-    // Autoriser le Cross-Origin-Resource-Policy pour tous les fichiers statiques
+    // Middleware pour servir les fichiers
     app.use("/storage", (req, res, next) => {
         res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
         next();
     });
-    // Servir les fichiers dans le dossier "uploads"
-    app.use("/storage", express_1.default.static(path_1.default.join(__dirname, "../uploads")));
+    app.use("/storage", express_1.default.static(uploadsPath));
+    app.use("/mcollect-rapports", express_1.default.static(path_1.default.join(__dirname, "../../../mcollect-files")));
     // Gestion globale des erreurs
     app.use((err, req, res, next) => {
         console.error(err.stack); // Log de l'erreur
