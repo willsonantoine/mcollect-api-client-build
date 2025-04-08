@@ -1,0 +1,28 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const comptes_controller_1 = __importDefault(require("../controllers/comptes.controller"));
+const authToken_1 = require("../../../shared/middleware/authToken");
+const operations_controller_1 = __importDefault(require("../controllers/operations.controller"));
+const journal_controller_1 = __importDefault(require("../controllers/journal.controller"));
+const ComptesRouter = express_1.default.Router();
+ComptesRouter.get("/find", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), comptes_controller_1.default.findAll);
+ComptesRouter.put("/update/:id", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), comptes_controller_1.default.UpdateAccountInfos);
+ComptesRouter.post("/create", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), comptes_controller_1.default.createAccountInfos);
+ComptesRouter.get("/find/class", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), comptes_controller_1.default.findClasse);
+ComptesRouter.get("/find/history/:id", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), comptes_controller_1.default.findAccountHistory);
+ComptesRouter.get("/find/currency", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), comptes_controller_1.default.findCurrency);
+ComptesRouter.get("/delete/:id/operation", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), operations_controller_1.default.deleteOperation);
+ComptesRouter.get("/journal", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), journal_controller_1.default.findAll);
+ComptesRouter.get("/balance/:id", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), comptes_controller_1.default.findBalance);
+ComptesRouter.get("/operations", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), operations_controller_1.default.findAllOperations);
+ComptesRouter.get("/operations-exemple", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), comptes_controller_1.default.getOperationExemple);
+ComptesRouter.get("/part-social", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), comptes_controller_1.default.getPartSocial);
+ComptesRouter.get("/journal-years", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), journal_controller_1.default.getAvailableYearsInJournal);
+ComptesRouter.put("/select-account/:id", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), comptes_controller_1.default.selectAccount);
+ComptesRouter.get("/part-socia-by-account", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), comptes_controller_1.default.getPartSocialByAccount);
+ComptesRouter.get("/getNextAccount", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), comptes_controller_1.default.getNextAccount);
+exports.default = ComptesRouter;

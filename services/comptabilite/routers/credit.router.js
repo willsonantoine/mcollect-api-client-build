@@ -1,0 +1,21 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const credit_controller_1 = __importDefault(require("../controllers/credit.controller"));
+const authToken_1 = require("../../../shared/middleware/authToken");
+const credit_validator_1 = __importDefault(require("../validator/credit.validator"));
+const vars_1 = require("../../../shared/utils/vars");
+const CreditRouter = express_1.default.Router();
+CreditRouter.post("/create", (0, vars_1.Validate)(credit_validator_1.default.create), (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), credit_controller_1.default.create);
+CreditRouter.put("/delete", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), credit_controller_1.default.deleteCredit);
+CreditRouter.get("/load", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), credit_controller_1.default.getCredits);
+CreditRouter.get("/count-by-years", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), credit_controller_1.default.getCountCreditByYears);
+CreditRouter.get("/get-next-number", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), credit_controller_1.default.getNextNumberOfCredit);
+CreditRouter.get("/reason", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), credit_controller_1.default.getReasons);
+CreditRouter.get("/totals-by-type", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), credit_controller_1.default.getTotalByTypeAndCurrency);
+CreditRouter.get("/penality/:days", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), credit_controller_1.default.getPenality);
+CreditRouter.put("/update-type", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), credit_controller_1.default.updateCreditType);
+exports.default = CreditRouter;

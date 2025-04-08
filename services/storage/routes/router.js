@@ -1,0 +1,21 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const storage_controller_1 = __importDefault(require("../controllers/storage.controller"));
+const storage_1 = require("../controllers/storage");
+const authToken_1 = require("../../../shared/middleware/authToken");
+const print_controller_1 = __importDefault(require("../controllers/print.controller"));
+const synchro_router_1 = __importDefault(require("./synchro.router"));
+const web_router_1 = __importDefault(require("./web.router"));
+const web_public_router_1 = __importDefault(require("./web.public.router"));
+const StorageRouter = express_1.default.Router();
+StorageRouter.post("/storage/save", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), storage_1.upload.single("file"), storage_1.validateFileUpload, storage_controller_1.default.create);
+StorageRouter.get("/storage/find", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), storage_controller_1.default.findAll);
+StorageRouter.get("/print/members", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), print_controller_1.default.generateMembersList);
+StorageRouter.use("/synchro", synchro_router_1.default);
+StorageRouter.use("/web", web_router_1.default);
+StorageRouter.use("/public", web_public_router_1.default);
+exports.default = StorageRouter;
