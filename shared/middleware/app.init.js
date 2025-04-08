@@ -12,8 +12,6 @@ const body_parser_1 = __importDefault(require("body-parser"));
 const path_1 = __importDefault(require("path"));
 const compression_1 = __importDefault(require("compression"));
 const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
-// Définir le chemin absolu vers le dossier "uploads"
-const uploadsPath = path_1.default.join(__dirname, "../uploads");
 const AppInit = (app) => {
     // Configuration du proxy
     app.set("trust proxy", true);
@@ -41,12 +39,11 @@ const AppInit = (app) => {
         message: "Too many requests from this IP, please try again later.",
     });
     app.use(limiter);
-    // Middleware pour servir les fichiers
+    // Serveur de fichiers statiques
     app.use("/storage", (req, res, next) => {
         res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
-        next();
+        express_1.default.static(path_1.default.join(__dirname, "../../uploads"))(req, res, next); // Call next middleware
     });
-    app.use("/storage", express_1.default.static(uploadsPath));
     app.use("/mcollect-rapports", express_1.default.static(path_1.default.join(__dirname, "../../../mcollect-files")));
     // Gestion globale des erreurs
     app.use((err, req, res, next) => {
