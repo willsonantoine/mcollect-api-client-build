@@ -39,12 +39,13 @@ const AppInit = (app) => {
         message: "Too many requests from this IP, please try again later.",
     });
     app.use(limiter);
-    // Serveur de fichiers statiques
+    // Autoriser le Cross-Origin-Resource-Policy pour tous les fichiers statiques
     app.use("/storage", (req, res, next) => {
         res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
-        express_1.default.static(path_1.default.join(__dirname, "../../../uploads"))(req, res, next); // Call next middleware
+        next();
     });
-    app.use("/mcollect-rapports", express_1.default.static(path_1.default.join(__dirname, "../../../mcollect-files")));
+    // Servir les fichiers dans le dossier "uploads"
+    app.use("/storage", express_1.default.static(path_1.default.join(__dirname, "../uploads")));
     // Gestion globale des erreurs
     app.use((err, req, res, next) => {
         console.error(err.stack); // Log de l'erreur
