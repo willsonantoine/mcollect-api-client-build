@@ -86,62 +86,107 @@ class BilletageService {
             // Execute all updates concurrently using Promise.all
             await Promise.all(updates);
         };
+        // Assuming BilletageService class context...
         this.getBilletageHistorySummary = async ({ type, currencyId = "", date, userCreatedId, }) => {
+            // --- Input Validation (Recommended) ---
+            // Add checks here to ensure 'date' is a valid date format, etc.
+            // before using it in a literal to prevent SQL injection risks.
+            // Example: Use a library like date-fns or moment to parse/validate 'date'
+            // const validatedDate = parseAndValidateDate(date); // Implement this function
+            // if (!validatedDate) {
+            //   throw new Error("Invalid date format");
+            // }
+            // const formattedDate = validatedDate.toISOString().split('T')[0]; // Get YYYY-MM-DD
+            // --- End Input Validation ---
+            // Where clause for the INNER JOIN on OperationModel
             const whereOperations = {
-                date_save: (0, sequelize_1.literal)(`DATE(date_save) = '${date}'`),
-                status: 1,
+                // Use Sequelize's date functions for safety and portability if possible
+                // If date_save is DATETIME, you can use:
+                [sequelize_1.Op.and]: [
+                    sequelize_1.Sequelize.where(sequelize_1.Sequelize.fn('DATE', sequelize_1.Sequelize.col('operation.date_save')), '=', date) // Use validated/formatted date
+                ],
+                // If date_save is already DATE type, it's simpler:
+                // date_save: date, // Use validated/formatted date
+                etat: 1, // Changed from status to etat based on your SQL query
             };
+            // Dynamically add conditions to the operation's where clause
             if (type) {
                 whereOperations.type = type;
             }
             if (userCreatedId) {
-                whereOperations.userCreatedId = userCreatedId;
+                // Assuming the association alias is 'userCreated' and the foreign key is 'user_create'
+                whereOperations['$userCreated.id$'] = userCreatedId; // Correct way to reference associated column in where
+                // Alternative if foreign key is directly on OperationModel:
+                // whereOperations.user_create = userCreatedId;
             }
+            // Where clause specifically for the CurrencyModel association (if filtering by currency)
+            const whereCurrency = {};
             if (currencyId) {
-                whereOperations.currencyId = currencyId;
+                // Apply currency filter on the JOIN condition or a top-level where if appropriate
+                // For filtering the main results by currency, add it here:
+                whereCurrency.id = currencyId;
             }
             return await operations_billetage_model_1.default.findAll({
-                // Use OperationsBilletageModel
                 attributes: [
-                    [(0, sequelize_1.col)("currency.id"), "currencyId"], // Group by currency ID
-                    [(0, sequelize_1.col)("currency.designation"), "currencyName"], // optional:  get the name for convenience
-                    [(0, sequelize_1.col)("operation.type"), "operationType"], // Group by operation type
-                    [(0, sequelize_1.col)("operation.userCreated.id"), "userCreatedId"], // Group by user ID
-                    [(0, sequelize_1.col)("operation.userCreated.username"), "userCreatedUsername"], // optional: get the username for convenience
-                    [(0, sequelize_1.col)("valeur"), "value"], // Include the 'valeur' column directly
-                    [(0, sequelize_1.fn)("SUM", (0, sequelize_1.col)("qte")), "totalQuantity"], // Sum the quantities for each value
+                    [(0, sequelize_1.col)("currency.id"), "currencyId"],
+                    // Include designation, will be added to GROUP BY
+                    [(0, sequelize_1.col)("currency.designation"), "currencyName"],
+                    [(0, sequelize_1.col)("operation.type"), "operationType"],
+                    // Use the foreign key name on OperationModel if 'userCreatedId' isn't directly available
+                    // Or rely on the association join
+                    [(0, sequelize_1.col)("operation->userCreated.id"), "userCreatedId"], // Correct way to access nested association column
+                    // Include username, will be added to GROUP BY
+                    [(0, sequelize_1.col)("operation->userCreated.username"), "userCreatedUsername"], // Correct way to access nested association column
+                    // Assuming 'valeur' is directly on OperationsBilletageModel
+                    [(0, sequelize_1.col)("OperationsBilletageModel.valeur"), "value"],
+                    // Aggregate function
+                    [(0, sequelize_1.fn)("SUM", (0, sequelize_1.col)("OperationsBilletageModel.qte")), "totalQuantity"],
                 ],
                 include: [
                     {
-                        model: currency_model_1.default, // Ensure correct import and usage of CurrencyModel
+                        model: currency_model_1.default,
                         as: "currency",
-                        attributes: [], // Only need ID and designation if included
+                        attributes: [], // No extra attributes needed from here
+                        where: whereCurrency, // Apply currency filtering here if needed
+                        required: !!currencyId, // Make JOIN required only if filtering by currencyId
                     },
                     {
                         model: operations_model_1.default,
                         as: "operation",
-                        where: whereOperations,
-                        attributes: [], // Don't return all the operation attributes, we only need those specified for the grouping
+                        where: whereOperations, // Apply filters for operations here
+                        attributes: [], // No extra attributes needed from here
+                        required: true, // Usually INNER JOIN based on your SQL
                         include: [
                             {
-                                model: users_model_1.default, // Use UsersModel here and ensure it's imported correctly
-                                as: "userCreated",
-                                attributes: [], // Only need ID and username if included
+                                model: users_model_1.default,
+                                as: "userCreated", // Ensure this alias matches your association definition
+                                attributes: [], // No extra attributes needed from here
+                                // Making this required depends on if you *only* want operations with valid users
+                                // Set to 'false' (LEFT JOIN) if you want operations even if user is deleted/missing
+                                required: false, // Based on your SQL LEFT OUTER JOIN
                             },
                         ],
                     },
                 ],
                 group: [
+                    // Add ALL non-aggregated selected columns to the GROUP BY clause
                     (0, sequelize_1.col)("currency.id"),
+                    (0, sequelize_1.col)("currency.designation"), // <-- ADDED
                     (0, sequelize_1.col)("operation.type"),
-                    (0, sequelize_1.col)("valeur"), // Group by 'valeur'
-                    (0, sequelize_1.col)("operation.userCreated.id"),
+                    (0, sequelize_1.col)("operation->userCreated.id"), // <-- Use association path
+                    (0, sequelize_1.col)("operation->userCreated.username"), // <-- Use association path & ADDED
+                    (0, sequelize_1.col)("OperationsBilletageModel.valeur"), // Group by 'valeur' from the base model
                 ],
                 order: [
-                    ["operation", "type", "ASC"], // Order by operation.type ascending
-                    ["currency", "id", "ASC"], // Order by currency.id ascending
+                    // Correct ordering syntax for associated columns
+                    [sequelize_1.Sequelize.literal('`operation`.`type`'), 'ASC'],
+                    [sequelize_1.Sequelize.literal('`currency`.`id`'), 'ASC'],
+                    // Simpler if models/aliases don't clash:
+                    // ['operation', 'type', 'ASC'],
+                    // ['currency', 'id', 'ASC'],
                 ],
-                raw: true, // Return raw JSON results instead of Sequelize model instances
+                raw: true, // Return raw data
+                // subQuery: false // Add this if complex WHERE clauses on includes cause issues
             });
         };
         this.getStockBilletage = async ({ limit, offset, currencyId, }) => {

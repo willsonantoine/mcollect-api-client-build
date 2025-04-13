@@ -179,6 +179,9 @@ class WebService {
                 visitesTimeSeries,
             };
         };
+        this.SiteFindByToken = async (token) => {
+            return await this.siteModel.findOne({ where: { token } });
+        };
         this.SiteFindAll = ({ limit, offset, }) => {
             return this.siteModel.findAndCountAll({
                 limit,

@@ -105,8 +105,6 @@ class OperationsController {
                 const { search, date1, date2, currencyId, type, accountId = "", status, } = req.query;
                 const { limit, offset } = (0, vars_1.pagination)(req);
                 const status_ = status === "true" ? true : status === "false" ? false : undefined;
-                console.log(req.query.status);
-                console.log(status_);
                 const result = await this.operationsService.findAll({
                     currencyId,
                     date1,

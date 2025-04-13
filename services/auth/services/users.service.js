@@ -98,9 +98,7 @@ class UserService {
                             where: { name: access.name },
                         });
                         if (!exist) {
-                            const countAccount = await this.accessModel.count();
                             await this.accessModel.create({
-                                id: `${countAccount + 1}`,
                                 name: access.name,
                                 description: access.nameDescription,
                                 type: access.type,
@@ -177,7 +175,6 @@ class UserService {
             // 4. Bulk create the missing access permissions.  Much more efficient than creating them one at a time.
             if (accessToCreate.length > 0) {
                 const newAccessUsers = accessToCreate.map((access) => ({
-                    id: `${accessToCreate.length + 1}`,
                     userId: userId,
                     accessId: access.id,
                     status: true,

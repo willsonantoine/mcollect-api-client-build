@@ -217,87 +217,118 @@ class CreditService {
                 return [];
             }
         };
-        this.getTotalByTypeAndCurrency = async ({ guarantees, reason, date2, date1, currencyId, memberId, year, month, gender, }) => {
+        // Assuming this is within a service class that has this.creditModel initialized
+        this.getTotalByTypeAndCurrency = async ({ guarantees, reason, date2, date1, currencyId, memberId, // This parameter isn't currently used in the where clauses
+        year, month, gender, }) => {
             try {
-                const where = {
-                    deletedAt: null,
+                // Base Where clause for CreditModel
+                const whereCredit = {
+                    deletedAt: null, // Assuming soft delete
                 };
+                // Date range filter on CreditModel's creation date (or relevant date field)
+                // Make sure 'createAt' is the correct column name on CreditModel
                 if (date1 && date2) {
-                    where.createAt = {
+                    whereCredit.createdAt = {
                         [sequelize_1.Op.gte]: date1,
                         [sequelize_1.Op.lte]: date2,
                     };
                 }
                 if (guarantees) {
-                    where.garentis = guarantees;
+                    // Ensure 'garentis' is the correct column name on CreditModel
+                    whereCredit.garentis = guarantees;
                 }
                 if (reason) {
-                    where.reason = reason;
+                    // Ensure 'reason' is the correct column name on CreditModel
+                    whereCredit.reason = reason;
                 }
+                // Year/Month filter on CreditModel's start date (or relevant date field)
+                // Ensure 'date_debut' is the correct column name on CreditModel
+                const dateAddConditions = [];
                 if (year) {
-                    where.dateAdd = {
-                        [sequelize_1.Op.and]: [(0, sequelize_1.literal)(`YEAR(date_debut) = ${year}`)],
-                    };
+                    dateAddConditions.push((0, sequelize_1.literal)(`YEAR(date_debut) = ${parseInt(year.toString(), 10)}`)); // Ensure year is integer
                 }
                 if (month) {
-                    if (where.dateAdd && where.dateAdd[sequelize_1.Op.and]) {
-                        where.dateAdd[sequelize_1.Op.and].push((0, sequelize_1.literal)(`MONTH(date_debut) = ${month}`));
-                    }
-                    else {
-                        where.dateAdd = {
-                            [sequelize_1.Op.and]: [(0, sequelize_1.literal)(`MONTH(date_debut) = ${month}`)],
-                        };
-                    }
+                    dateAddConditions.push((0, sequelize_1.literal)(`MONTH(date_debut) = ${parseInt(month.toString(), 10)}`)); // Ensure month is integer
                 }
+                if (dateAddConditions.length > 0) {
+                    whereCredit.date_debut = {
+                        [sequelize_1.Op.and]: dateAddConditions,
+                    };
+                }
+                // Where clause for MembersModel association
                 const whereMembers = {};
                 if (gender) {
                     whereMembers.gender = gender;
                 }
+                // Where clause for CurrencyModel association
+                const whereCurrency = {};
+                if (currencyId) {
+                    whereCurrency.id = currencyId;
+                }
                 const result = await this.creditModel.findAll({
                     attributes: [
-                        "type_credit",
-                        [(0, sequelize_1.fn)("SUM", (0, sequelize_1.col)("montant_demande")), "totalRequestedAmount"],
-                        [(0, sequelize_1.fn)("SUM", (0, sequelize_1.col)("CreditModel.reste")), "totalRemaining"],
+                        // Non-aggregated columns (must be in GROUP BY)
+                        "type_credit", // From CreditModel directly
+                        [(0, sequelize_1.col)("operation->currency.id"), "currencyId"], // Explicitly select for mapping & grouping
+                        [(0, sequelize_1.col)("operation->currency.designation"), "currencyName"], // Explicitly select for mapping & grouping
+                        // Aggregated columns
+                        [(0, sequelize_1.fn)("SUM", (0, sequelize_1.col)("CreditModel.montant_demande")), "totalRequestedAmount"], // Ensure column name is correct
+                        [(0, sequelize_1.fn)("SUM", (0, sequelize_1.col)("CreditModel.reste")), "totalRemaining"], // Ensure column name is correct
                     ],
                     include: [
                         {
                             model: operations_model_2.default,
-                            attributes: [],
-                            required: true,
+                            as: "operation", // ***Crucial: Ensure this alias matches your CreditModel association***
+                            attributes: [], // Not selecting directly from Operation, just using for joins/filters
+                            required: true, // INNER JOIN to Operation
                             include: [
                                 {
                                     model: currency_model_1.default,
-                                    attributes: ["id", "name"],
-                                    required: true,
-                                    where: currencyId ? { id: currencyId } : {}, // Conditional currency filter
-                                    as: "currency", // Important: Keep the alias consistent
+                                    as: "currency", // ***Crucial: Ensure this alias matches your OperationModel association***
+                                    attributes: [], // Attributes selected above
+                                    where: whereCurrency, // Apply currency filter here
+                                    required: true, // INNER JOIN to Currency (or set based on currencyId presence)
                                 },
                                 {
                                     model: members_model_1.default,
-                                    as: "beneficiaire",
-                                    where: whereMembers,
+                                    as: "beneficiaire", // ***Crucial: Ensure this alias matches your OperationModel association***
                                     attributes: [],
+                                    where: whereMembers, // Apply member filter here
+                                    required: !!gender, // Make INNER JOIN only if filtering by gender, otherwise LEFT JOIN
                                 },
                             ],
-                            as: "operation", // Alias for the association, use the same as defined in your association
                         },
                     ],
-                    where,
-                    group: ["type_credit", "operation.currency.id"], // Group by credit type and currency ID
-                    order: ["type_credit"],
-                    raw: true,
+                    where: whereCredit, // Apply CreditModel filters
+                    group: [
+                        "type_credit", // Group by column from CreditModel
+                        (0, sequelize_1.col)("operation->currency.id"), // Group by associated currency ID
+                        (0, sequelize_1.col)("operation->currency.designation"), // <-- ADDED: Group by associated currency name
+                    ],
+                    order: [
+                        // Ordering might need adjustment depending on desired output
+                        // Ordering by an aggregated value might be more meaningful, e.g.:
+                        // [Sequelize.literal('totalRequestedAmount'), 'DESC']
+                        ["type_credit", 'ASC'] // Keep original order for now
+                    ],
+                    raw: true, // Get plain objects
                 });
+                // Map the raw results to the desired ICreditSummary structure
+                // Access properties using the aliases defined in 'attributes'
                 return result.map((item) => ({
                     creditType: item.type_credit,
-                    currencyId: item["operation.currency.id"], // Access nested property using dot notation with raw: true
-                    currencyName: item["operation.currency.name"],
-                    totalRequestedAmount: Number(item.totalRequestedAmount),
-                    totalRemaining: Number(item.totalRemaining),
+                    currencyId: item.currencyId, // Use the alias
+                    currencyName: item.currencyName, // Use the alias
+                    totalRequestedAmount: Number(item.totalRequestedAmount) || 0, // Add fallback for safety
+                    totalRemaining: Number(item.totalRemaining) || 0, // Add fallback for safety
                 }));
             }
             catch (error) {
-                console.error("Error executing Sequelize query:", error);
-                return [];
+                // Log the detailed error for debugging
+                console.error("Error fetching credit summary:", error);
+                // Consider throwing the error or returning a more specific error response
+                // depending on how the calling code handles errors.
+                return []; // Return empty array on error as per original code
             }
         };
         this.getPenalitiesPercentage = async (days) => {
