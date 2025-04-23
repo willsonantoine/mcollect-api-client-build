@@ -60,6 +60,10 @@ ProduitSubCategorieModel.init({
         type: sequelize_1.DataTypes.BOOLEAN,
         defaultValue: false,
     },
+    image: {
+        type: sequelize_1.DataTypes.STRING,
+        defaultValue: null
+    }
 }, {
     sequelize: sequelize_2.default,
     tableName: "produit_sub_category",

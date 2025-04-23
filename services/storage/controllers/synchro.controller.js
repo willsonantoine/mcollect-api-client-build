@@ -58,6 +58,7 @@ class SynchroController {
                     categoryId: categId,
                 });
                 const productId = await this.produitService.getProductId({
+                    id: data.id_produit,
                     name: data.name,
                     subCategoryId: subCategId,
                 });

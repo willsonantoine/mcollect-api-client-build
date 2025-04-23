@@ -28,12 +28,9 @@ const sequelize = new sequelize_1.Sequelize({
         charset: exports.CHARSET,
     },
 });
-sequelize
-    .sync({ alter: true })
-    .then(() => {
-    console.log("Database synchronized");
-})
-    .catch((err) => {
-    console.error("Error synchronizing database:", err);
+sequelize.authenticate({}).then(() => {
+    console.log(`Database connected`);
+}).catch(error => {
+    console.log('Error to connect database:=>', error);
 });
 exports.default = sequelize;

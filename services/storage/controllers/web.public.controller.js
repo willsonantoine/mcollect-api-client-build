@@ -122,6 +122,44 @@ class WebPublicController {
                 });
             }
         };
+        this.getProduit = async (req, res) => {
+            try {
+                const { token } = req.params;
+                const { categoryId, subCategoryId, search } = req.query;
+                const categ = await this.webPublicService.getProductCategorie({ token });
+                const result = await this.webPublicService.getProduct({
+                    categoryId: String(categoryId), subCategoryId: String(subCategoryId), search: String(search), token
+                });
+                (0, response_util_1.setResponse)({
+                    res,
+                    data: { category: categ, product: result },
+                });
+            }
+            catch (error) {
+                (0, response_util_1.setResponse)({
+                    res,
+                    statusCode: 500,
+                    error,
+                });
+            }
+        };
+        this.getMembers = async (req, res) => {
+            try {
+                const { token } = req.params;
+                const result = await this.webPublicService.getMembers(token);
+                (0, response_util_1.setResponse)({
+                    res,
+                    data: result
+                });
+            }
+            catch (error) {
+                (0, response_util_1.setResponse)({
+                    res,
+                    statusCode: 500,
+                    error,
+                });
+            }
+        };
         this.webPublicService = new web_public_service_1.default();
     }
 }

@@ -9,6 +9,7 @@ const members_controller_1 = __importDefault(require("../controllers/members.con
 const vars_1 = require("../../../shared/utils/vars");
 const auth_validator_1 = __importDefault(require("../validator/auth.validator"));
 const authToken_1 = require("../../../shared/middleware/authToken");
+const member_fonction_controller_1 = __importDefault(require("../controllers/member.fonction.controller"));
 const AuthRouter = express_1.default.Router();
 AuthRouter.post("/login", (0, vars_1.Validate)(auth_validator_1.default.login), users_controller_1.default.login);
 AuthRouter.get("/logOut", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin, authToken_1.EnumRoles.User]), users_controller_1.default.logOut);
@@ -31,4 +32,10 @@ AuthRouter.get("/users-access/:userId", (0, authToken_1.AuthToken)([authToken_1.
 AuthRouter.get("/get-all-roles", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), users_controller_1.default.getAllRoles);
 AuthRouter.put("/add-access/:userId/:id", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), users_controller_1.default.addAccessToUser);
 AuthRouter.put("/init-password/:userId", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.SuperAdmin]), users_controller_1.default.initPassword);
+AuthRouter.put("/set-show-on-website/:memberId/:siteId", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.SuperAdmin]), members_controller_1.default.setShowVisibleOnWeb);
+// Members fonctions Router 
+AuthRouter.post("/fonctions/create", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.SuperAdmin]), member_fonction_controller_1.default.create);
+AuthRouter.put("/fonctions/update/:id", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.SuperAdmin]), member_fonction_controller_1.default.update);
+AuthRouter.get("/fonctions/get", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.SuperAdmin]), member_fonction_controller_1.default.findAll);
+AuthRouter.delete("/fonctions/delete/:id", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.SuperAdmin]), member_fonction_controller_1.default.delete);
 exports.default = AuthRouter;

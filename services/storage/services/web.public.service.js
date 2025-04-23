@@ -43,6 +43,12 @@ const site_containt_model_1 = __importStar(require("../../../shared/models/site.
 const site_mode_1 = __importDefault(require("../../../shared/models/site.mode"));
 const site_visite_model_1 = __importDefault(require("../../../shared/models/site.visite.model"));
 const vars_1 = require("../../../shared/utils/vars");
+const produit_model_1 = __importDefault(require("../../../shared/models/produit.model"));
+const produit_category_model_copy_1 = __importDefault(require("../../../shared/models/produit.category.model copy"));
+const produit_subcategory_model_1 = __importDefault(require("../../../shared/models/produit.subcategory.model"));
+const currency_model_1 = __importDefault(require("../../../shared/models/currency.model"));
+const site_members_model_1 = __importDefault(require("../../../shared/models/site.members.model"));
+const members_category_model_1 = __importDefault(require("../../../shared/models/members.category.model"));
 class WebPublicService {
     constructor() {
         this.getSiteInfos = async ({ token }) => {
@@ -151,11 +157,124 @@ class WebPublicService {
                 await this.siteVisite.create({ ip, browser, devise, siteId });
             }
         };
+        this.getProduct = async ({ token, search, subCategoryId, categoryId }) => {
+            const whereProduct = { showOnWeb: true };
+            if (subCategoryId) {
+                whereProduct.subCategoryId = subCategoryId;
+            }
+            if (search) {
+                whereProduct[sequelize_1.Op.or] = [
+                    { id: { [sequelize_1.Op.like]: `%${search}%` } },
+                    { name: { [sequelize_1.Op.like]: `%${search}%` } },
+                    { description: { [sequelize_1.Op.like]: `%${search}%` } },
+                ];
+            }
+            const whereCateg = {};
+            if (subCategoryId) {
+                whereCateg.categoryId = categoryId;
+            }
+            return await this.produitsModel.findAll({
+                where: whereProduct,
+                order: [
+                    ["createdAt", "desc"],
+                    ["updatedAt", "desc"],
+                ],
+                attributes: ['id', 'name', 'description', 'images', 'brand', 'type', 'stockLocation', 'url', 'unite', 'reference', 'price_max', 'currencyId', 'type', 'subCategoryId', 'createdAt', 'updatedAt', 'price_min', 'createdAt'],
+                include: [
+                    {
+                        model: produit_subcategory_model_1.default, as: 'subCategory', where: whereCateg, attributes: ['id', 'name', 'description', 'image'],
+                        include: [{ model: produit_category_model_copy_1.default, as: 'category', attributes: ['id', 'name', 'description', 'image'] }],
+                    },
+                    {
+                        model: currency_model_1.default, as: 'currency', attributes: ['id', 'name']
+                    },
+                    {
+                        model: site_mode_1.default, as: 'site', where: { token }, attributes: []
+                    }
+                ]
+            });
+        };
+        this.getProductCategorie = async ({ token }) => {
+            // On récupère tous les produits visibles sur le web et appartenant au site
+            const produits = await this.produitsModel.findAll({
+                where: {
+                    showOnWeb: true,
+                },
+                attributes: ['id', 'subCategoryId'],
+                include: [
+                    {
+                        model: site_mode_1.default,
+                        as: 'site',
+                        where: { token },
+                        attributes: []
+                    },
+                ],
+            });
+            // On extrait les IDs des sous-catégories utilisées
+            const subCategoryIds = [...new Set(produits.map((p) => p.subCategoryId))];
+            // On récupère maintenant les sous-catégories et leurs catégories parentes
+            const subCategories = await produit_subcategory_model_1.default.findAll({
+                where: {
+                    id: subCategoryIds,
+                },
+                attributes: ['id', 'name', 'description', 'image', 'categoryId'],
+                include: [
+                    {
+                        model: produit_category_model_copy_1.default,
+                        as: 'category',
+                        attributes: ['id', 'name', 'description', 'image'],
+                    },
+                ],
+            });
+            // On structure les données pour grouper par catégorie
+            const categoriesMap = {};
+            for (const sub of subCategories) {
+                const category = sub.category;
+                if (!categoriesMap[category.id]) {
+                    categoriesMap[category.id] = {
+                        id: category.id,
+                        name: category.name,
+                        description: category.description,
+                        image: category.image,
+                        subCategories: [],
+                    };
+                }
+                categoriesMap[category.id].subCategories.push({
+                    id: sub.id,
+                    name: sub.name,
+                    description: sub.description,
+                    image: sub.image,
+                });
+            }
+            // On retourne un tableau des catégories avec leurs sous-catégories
+            return Object.values(categoriesMap);
+        };
+        this.getMembers = async (token) => {
+            return await this.siteMember.findAndCountAll({
+                order: [
+                    ["createdAt", "desc"],
+                    ["updatedAt", "desc"],
+                ],
+                attributes: ['id', 'statusAt', 'updatedAt'],
+                include: [
+                    { model: site_mode_1.default, as: "site", where: { token }, attributes: [] },
+                    {
+                        model: members_model_1.default, as: "member",
+                        attributes: ['fullname', 'img', 'number', 'adress'],
+                        include: [{ model: members_category_model_1.default, as: 'fonction', attributes: ['name', 'description'] }]
+                    },
+                ],
+            });
+        };
         this.siteModel = site_mode_1.default;
         this.siteContaint = site_containt_model_1.default;
         this.siteContaintCategory = site_containt_category_model_1.default;
         this.siteSubscriber = members_model_1.default;
         this.siteVisite = site_visite_model_1.default;
+        this.produitsModel = produit_model_1.default;
+        this.categoryModel = produit_category_model_copy_1.default;
+        this.subCategoryModel = produit_subcategory_model_1.default;
+        this.siteMember = site_members_model_1.default;
     }
 }
 exports.default = WebPublicService;

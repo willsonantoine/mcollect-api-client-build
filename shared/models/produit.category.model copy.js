@@ -32,9 +32,13 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
 const sequelize_2 = __importStar(require("../utils/sequelize"));
+const users_model_1 = __importDefault(require("./users.model"));
 class ProduitCategorieModel extends sequelize_1.Model {
 }
 ProduitCategorieModel.init({
@@ -51,6 +55,10 @@ ProduitCategorieModel.init({
         type: sequelize_1.DataTypes.TEXT("long"),
         allowNull: true,
     },
+    image: {
+        type: sequelize_1.DataTypes.TEXT,
+        defaultValue: null
+    },
     synchro: {
         type: sequelize_1.DataTypes.BOOLEAN,
         defaultValue: false,
@@ -61,5 +69,17 @@ ProduitCategorieModel.init({
     paranoid: true,
     charset: sequelize_2.CHARSET,
     collate: sequelize_2.COLLATE,
+});
+ProduitCategorieModel.belongsTo(users_model_1.default, {
+    as: "userCreated",
+    foreignKey: "userCreatedId",
+});
+ProduitCategorieModel.belongsTo(users_model_1.default, {
+    as: "userUpdated",
+    foreignKey: "userUpdatedId",
+});
+ProduitCategorieModel.belongsTo(users_model_1.default, {
+    as: "userDeleted",
+    foreignKey: "userDeletedId",
 });
 exports.default = ProduitCategorieModel;

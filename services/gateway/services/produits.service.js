@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const produit_category_model_copy_1 = __importDefault(require("../../../shared/models/produit.category.model copy"));
 const produit_model_1 = __importDefault(require("../../../shared/models/produit.model"));
 const produit_stock_model_1 = __importDefault(require("../../../shared/models/produit.stock.model"));
-const produit_sub_category_model_1 = __importDefault(require("../../../shared/models/produit.sub.category.model"));
+const produit_subcategory_model_1 = __importDefault(require("../../../shared/models/produit.subcategory.model"));
 class ProduitService {
     constructor() {
         this.getCategId = async (name) => {
@@ -19,9 +19,13 @@ class ProduitService {
             });
             return subCateg.id;
         };
-        this.getProductId = async ({ name, subCategoryId, }) => {
+        this.getProductId = async ({ id, name, subCategoryId, }) => {
+            const exist = await this.produitModel.findByPk(id);
+            if (exist) {
+                return exist.id;
+            }
             const [prod] = await this.produitModel.findCreateFind({
-                where: { name, subCategoryId },
+                where: { id, name, subCategoryId },
             });
             return prod.id;
         };
@@ -44,7 +48,7 @@ class ProduitService {
             return await this.productStock.update(data, { where: { id } });
         };
         this.produitCateg = produit_category_model_copy_1.default;
-        this.produitSubCateg = produit_sub_category_model_1.default;
+        this.produitSubCateg = produit_subcategory_model_1.default;
         this.produitModel = produit_model_1.default;
         this.productStock = produit_stock_model_1.default;
     }

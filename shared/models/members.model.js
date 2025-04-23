@@ -39,6 +39,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
 const sequelize_2 = __importStar(require("../utils/sequelize"));
 const users_model_1 = __importDefault(require("./users.model"));
+const members_category_model_1 = __importDefault(require("./members.category.model"));
 class MemberModel extends sequelize_1.Model {
 }
 MemberModel.init({
@@ -263,8 +264,8 @@ MemberModel.init({
     },
     updatedAt: {
         type: sequelize_1.DataTypes.DATE,
-        defaultValue: new Date(),
-        field: "createAt",
+        defaultValue: sequelize_1.DataTypes.NOW,
+        field: "updatedAt",
     },
     card_url: {
         type: sequelize_1.DataTypes.STRING,
@@ -274,6 +275,10 @@ MemberModel.init({
         type: sequelize_1.DataTypes.TEXT("long"),
         defaultValue: null,
     },
+    showOnWebSite: {
+        type: sequelize_1.DataTypes.BOOLEAN,
+        defaultValue: false
+    }
 }, {
     sequelize: sequelize_2.default,
     tableName: "membres",
@@ -286,8 +291,8 @@ MemberModel.belongsTo(users_model_1.default, {
     as: "userCreated",
     foreignKey: "user_create",
 });
-// MemberModel.belongsTo(MemberCategoryModel, {
-//   as: "memberCategory",
-//   foreignKey: "id_categ",
-// });
+MemberModel.belongsTo(members_category_model_1.default, {
+    as: "fonction",
+    foreignKey: "id_categ",
+});
 exports.default = MemberModel;

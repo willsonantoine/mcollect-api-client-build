@@ -17,4 +17,6 @@ WebPublicRouter.get("/blogs-category/:token/find", web_public_controller_1.defau
 WebPublicRouter.get("/blog/:token/:url/find-by-url", web_public_controller_1.default.getBlogsByUrl);
 WebPublicRouter.post("/contact/:token/message/create", (0, vars_1.Validate)(contact_message_validator_1.default.create), contact_message_controller_1.default.create);
 WebPublicRouter.get("/contact/message/:siteId", contact_message_controller_1.default.findAll);
+WebPublicRouter.get("/product/:token", web_public_controller_1.default.getProduit);
+WebPublicRouter.get("/members/:token", web_public_controller_1.default.getMembers);
 exports.default = WebPublicRouter;

@@ -36,9 +36,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.EnumProduitType = void 0;
 const sequelize_1 = require("sequelize");
 const sequelize_2 = __importStar(require("../utils/sequelize"));
-const produit_sub_category_model_1 = __importDefault(require("./produit.sub.category.model"));
+const produit_subcategory_model_1 = __importDefault(require("./produit.subcategory.model"));
+const users_model_1 = __importDefault(require("./users.model"));
+const currency_model_1 = __importDefault(require("./currency.model"));
+const site_mode_1 = __importDefault(require("./site.mode"));
+var EnumProduitType;
+(function (EnumProduitType) {
+    EnumProduitType["PRODUIT"] = "Produit";
+    EnumProduitType["SERVICE"] = "Service";
+})(EnumProduitType || (exports.EnumProduitType = EnumProduitType = {}));
 class ProduitModel extends sequelize_1.Model {
 }
 ProduitModel.init({
@@ -59,6 +68,10 @@ ProduitModel.init({
         type: sequelize_1.DataTypes.FLOAT,
         defaultValue: 0,
     },
+    url: {
+        type: sequelize_1.DataTypes.TEXT('long'),
+        defaultValue: null
+    },
     qte_min: {
         type: sequelize_1.DataTypes.FLOAT,
         defaultValue: 0,
@@ -73,12 +86,40 @@ ProduitModel.init({
     },
     type: {
         type: sequelize_1.DataTypes.STRING,
-        defaultValue: null,
+        defaultValue: EnumProduitType.PRODUIT,
     },
     synchro: {
         type: sequelize_1.DataTypes.BOOLEAN,
         defaultValue: false,
     },
+    images: {
+        type: sequelize_1.DataTypes.TEXT('long'),
+        defaultValue: null
+    },
+    reference: {
+        type: sequelize_1.DataTypes.STRING,
+        defaultValue: null
+    },
+    brand: {
+        type: sequelize_1.DataTypes.STRING,
+        defaultValue: null
+    },
+    etat: {
+        type: sequelize_1.DataTypes.STRING,
+        defaultValue: null
+    },
+    stockLocation: {
+        type: sequelize_1.DataTypes.STRING,
+        defaultValue: null
+    },
+    unite: {
+        type: sequelize_1.DataTypes.STRING,
+        defaultValue: null
+    },
+    showOnWeb: {
+        type: sequelize_1.DataTypes.BOOLEAN,
+        defaultValue: false
+    }
 }, {
     sequelize: sequelize_2.default,
     tableName: "produits",
@@ -86,8 +127,25 @@ ProduitModel.init({
     charset: sequelize_2.CHARSET,
     collate: sequelize_2.COLLATE,
 });
-ProduitModel.belongsTo(produit_sub_category_model_1.default, {
+ProduitModel.belongsTo(currency_model_1.default, {
+    as: 'currency',
+    foreignKey: 'currencyId'
+});
+ProduitModel.belongsTo(produit_subcategory_model_1.default, {
     as: "subCategory",
     foreignKey: "subCategoryId",
 });
+ProduitModel.belongsTo(users_model_1.default, {
+    as: "userCreated",
+    foreignKey: "userCreatedId",
+});
+ProduitModel.belongsTo(users_model_1.default, {
+    as: "userUpdated",
+    foreignKey: "userUpdatedId",
+});
+ProduitModel.belongsTo(users_model_1.default, {
+    as: "userDeleted",
+    foreignKey: "userDeletedId",
+});
+ProduitModel.belongsTo(site_mode_1.default, { as: 'site', foreignKey: 'siteId' });
 exports.default = ProduitModel;

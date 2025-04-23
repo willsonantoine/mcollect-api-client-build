@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
 const members_model_1 = __importDefault(require("../../../shared/models/members.model"));
 const members_category_model_1 = __importDefault(require("../../../shared/models/members.category.model"));
+const site_members_model_1 = __importDefault(require("../../../shared/models/site.members.model"));
 class MembersService {
     constructor() {
         this.findAll = async ({ limit = 10, offset = 0, search, gender, type = "", date1 = "", date2 = "", }) => {
@@ -57,6 +58,7 @@ class MembersService {
                     "phone",
                     "categoryId",
                     "mail",
+                    "showOnWebSite",
                     "joinedAt",
                     "createdAt",
                     "updatedAt",
@@ -184,8 +186,23 @@ class MembersService {
         this.getFonction = async (name) => {
             return await this.membersFonctionModel.findCreateFind({ where: { name } });
         };
+        this.setShowVisibleOnWeb = async (memberId, siteId) => {
+            const findUser = await this.membersModel.findByPk(memberId);
+            if (findUser) {
+                await findUser.update({ showOnWebSite: !findUser.showOnWebSite });
+            }
+            const findSiteMember = await this.siteMember.findOne({ where: { memberId, siteId } });
+            if (findSiteMember) {
+                await findSiteMember.update({ status: !findSiteMember.status, statusAt: new Date() });
+            }
+            else {
+                await this.siteMember.create({ memberId, siteId, status: true, statusAt: new Date() });
+            }
+            return findUser;
+        };
         this.membersModel = members_model_1.default;
         this.membersFonctionModel = members_category_model_1.default; //
+        this.siteMember = site_members_model_1.default;
     }
 }
 exports.default = MembersService;

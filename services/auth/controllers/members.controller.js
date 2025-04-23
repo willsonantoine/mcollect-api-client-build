@@ -232,6 +232,23 @@ class MembersController {
                 });
             }
         };
+        this.setShowVisibleOnWeb = async (req, res) => {
+            try {
+                const { memberId, siteId } = req.params;
+                const result = await this.memberService.setShowVisibleOnWeb(memberId, siteId);
+                (0, response_util_1.setResponse)({
+                    res, message: "Membre modifié avec succès"
+                });
+            }
+            catch (error) {
+                (0, response_util_1.setResponse)({
+                    res,
+                    message: `Une erreur interne s'est produite`,
+                    statusCode: 500,
+                    error,
+                });
+            }
+        };
         this.memberService = new members_service_1.default();
         this.compteService = new comptes_service_1.default();
         this.settingsService = new settings_service_1.default();
