@@ -28,9 +28,12 @@ const sequelize = new sequelize_1.Sequelize({
         charset: exports.CHARSET,
     },
 });
-sequelize.authenticate({}).then(() => {
+sequelize
+    .authenticate({})
+    .then(() => {
     console.log(`Database connected`);
-}).catch(error => {
-    console.log('Error to connect database:=>', error);
+})
+    .catch((error) => {
+    console.log("Error to connect database:=>", error);
 });
 exports.default = sequelize;

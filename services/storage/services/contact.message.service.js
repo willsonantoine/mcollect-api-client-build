@@ -11,7 +11,7 @@ class ContactMessageService {
         this.create = async (data) => {
             return await this.contactMessageModel.create(data);
         };
-        this.findAll = async ({ limit, offset, search, siteId }) => {
+        this.findAll = async ({ limit, offset, search, siteId, }) => {
             const whereTarget = { siteId };
             if (search) {
                 whereTarget[sequelize_1.Op.or] = [
@@ -20,12 +20,17 @@ class ContactMessageService {
                 ];
             }
             return await this.contactMessageModel.findAndCountAll({
-                offset, limit,
+                offset,
+                limit,
                 where: whereTarget,
-                order: [['createdAt', 'desc']],
+                order: [["createdAt", "desc"]],
                 include: [
-                    { model: users_model_1.default, as: 'userHasRead', attributes: ['id', 'username', 'avatar'] }
-                ]
+                    {
+                        model: users_model_1.default,
+                        as: "userHasRead",
+                        attributes: ["id", "username", "avatar"],
+                    },
+                ],
             });
         };
         this.contactMessageModel = contact_messages_1.default;

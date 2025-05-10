@@ -119,7 +119,7 @@ CompteModel.init({
     },
     isVerifyBalance: {
         type: sequelize_1.DataTypes.BOOLEAN,
-        defaultValue: true
+        defaultValue: true,
     },
     is_compte: {
         type: sequelize_1.DataTypes.INTEGER,
@@ -150,7 +150,7 @@ CompteModel.init({
 }, {
     sequelize: sequelize_2.default,
     tableName: "comptabilite_compte",
-    timestamps: false,
+    timestamps: true,
     paranoid: true,
     collate: sequelize_2.COLLATE,
     charset: sequelize_2.CHARSET,
@@ -159,6 +159,9 @@ CompteModel.belongsTo(compte_classes_model_1.default, {
     foreignKey: "id_classe",
     as: "classe",
 });
-CompteModel.belongsTo(users_model_1.default, { as: 'userCreated', foreignKey: 'userCreatedId' });
+CompteModel.belongsTo(users_model_1.default, {
+    as: "userCreated",
+    foreignKey: "userCreatedId",
+});
 CompteModel.belongsTo(members_model_1.default, { foreignKey: "id_membre", as: "member" });
 exports.default = CompteModel;

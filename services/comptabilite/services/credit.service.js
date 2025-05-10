@@ -229,6 +229,7 @@ class CreditService {
                 // Make sure 'createAt' is the correct column name on CreditModel
                 if (date1 && date2) {
                     whereCredit.createdAt = {
+                        // Adjust 'createdAt' if your column name is different
                         [sequelize_1.Op.gte]: date1,
                         [sequelize_1.Op.lte]: date2,
                     };
@@ -252,6 +253,7 @@ class CreditService {
                 }
                 if (dateAddConditions.length > 0) {
                     whereCredit.date_debut = {
+                        // Apply to the correct date column
                         [sequelize_1.Op.and]: dateAddConditions,
                     };
                 }
@@ -272,7 +274,10 @@ class CreditService {
                         [(0, sequelize_1.col)("operation->currency.id"), "currencyId"], // Explicitly select for mapping & grouping
                         [(0, sequelize_1.col)("operation->currency.designation"), "currencyName"], // Explicitly select for mapping & grouping
                         // Aggregated columns
-                        [(0, sequelize_1.fn)("SUM", (0, sequelize_1.col)("CreditModel.montant_demande")), "totalRequestedAmount"], // Ensure column name is correct
+                        [
+                            (0, sequelize_1.fn)("SUM", (0, sequelize_1.col)("CreditModel.montant_demande")),
+                            "totalRequestedAmount",
+                        ], // Ensure column name is correct
                         [(0, sequelize_1.fn)("SUM", (0, sequelize_1.col)("CreditModel.reste")), "totalRemaining"], // Ensure column name is correct
                     ],
                     include: [
@@ -309,7 +314,7 @@ class CreditService {
                         // Ordering might need adjustment depending on desired output
                         // Ordering by an aggregated value might be more meaningful, e.g.:
                         // [Sequelize.literal('totalRequestedAmount'), 'DESC']
-                        ["type_credit", 'ASC'] // Keep original order for now
+                        ["type_credit", "ASC"], // Keep original order for now
                     ],
                     raw: true, // Get plain objects
                 });

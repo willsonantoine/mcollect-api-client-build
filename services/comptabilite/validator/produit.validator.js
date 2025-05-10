@@ -93,4 +93,8 @@ const CreateSubProduitCategoryValidator = [
         .isString()
         .withMessage("Le champ categoryId doit être une chaîne de caractères"),
 ];
-exports.default = { CreateProduitValidator, CreateProduitCategoryValidator, CreateSubProduitCategoryValidator };
+exports.default = {
+    CreateProduitValidator,
+    CreateProduitCategoryValidator,
+    CreateSubProduitCategoryValidator,
+};

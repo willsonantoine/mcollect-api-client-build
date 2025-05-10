@@ -38,53 +38,33 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
 const sequelize_2 = __importStar(require("../utils/sequelize"));
-const produit_category_model_copy_1 = __importDefault(require("./produit.category.model copy"));
 const users_model_1 = __importDefault(require("./users.model"));
-class ProduitSubCategorieModel extends sequelize_1.Model {
+class OtpModel extends sequelize_1.Model {
 }
-ProduitSubCategorieModel.init({
+OtpModel.init({
     id: {
         type: sequelize_1.DataTypes.STRING,
-        primaryKey: true,
         defaultValue: sequelize_1.DataTypes.UUIDV4,
+        primaryKey: true,
     },
-    name: {
+    code: {
         type: sequelize_1.DataTypes.STRING,
-        allowNull: true,
+        defaultValue: null,
     },
-    description: {
-        type: sequelize_1.DataTypes.TEXT("long"),
-        allowNull: true,
-    },
-    synchro: {
+    status: {
         type: sequelize_1.DataTypes.BOOLEAN,
         defaultValue: false,
     },
-    image: {
-        type: sequelize_1.DataTypes.STRING,
+    expireAt: {
+        type: sequelize_1.DataTypes.DATE,
         defaultValue: null,
     },
 }, {
     sequelize: sequelize_2.default,
-    tableName: "produit_sub_category",
     paranoid: true,
+    tableName: "auth_otp",
     charset: sequelize_2.CHARSET,
     collate: sequelize_2.COLLATE,
 });
-ProduitSubCategorieModel.belongsTo(produit_category_model_copy_1.default, {
-    as: "category",
-    foreignKey: "categoryId",
-});
-ProduitSubCategorieModel.belongsTo(users_model_1.default, {
-    as: "userCreated",
-    foreignKey: "userCreatedId",
-});
-ProduitSubCategorieModel.belongsTo(users_model_1.default, {
-    as: "userUpdated",
-    foreignKey: "userUpdatedId",
-});
-ProduitSubCategorieModel.belongsTo(users_model_1.default, {
-    as: "userDeleted",
-    foreignKey: "userDeletedId",
-});
-exports.default = ProduitSubCategorieModel;
+OtpModel.belongsTo(users_model_1.default, { as: "user", foreignKey: "userId" });
+exports.default = OtpModel;

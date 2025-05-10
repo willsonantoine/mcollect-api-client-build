@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const web_controller_1 = __importDefault(require("../controllers/web.controller"));
 const authToken_1 = require("../../../shared/middleware/authToken");
+const commande_controller_1 = __importDefault(require("../../comptabilite/controllers/commande.controller"));
 const WebRouter = express_1.default.Router();
 WebRouter.post("/site/create", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), web_controller_1.default.SiteCreate);
 WebRouter.get("/site/find", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), web_controller_1.default.SiteFindAll);
@@ -23,4 +24,5 @@ WebRouter.put("/containt/category/update/:id", (0, authToken_1.AuthToken)([authT
 WebRouter.delete("/containt/category/delete/:id", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), web_controller_1.default.SiteContaintCategoryDelelte);
 WebRouter.get("/dashboard", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), web_controller_1.default.getDashboardData);
 WebRouter.get("/visite/:siteId", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), web_controller_1.default.getVisite);
+WebRouter.get("/commandes/find", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), commande_controller_1.default.getCommandesInAdmin);
 exports.default = WebRouter;

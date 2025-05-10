@@ -15,6 +15,12 @@ const access_model_1 = __importDefault(require("../../../shared/models/access.mo
 const AccessList_1 = require("../../../shared/storage/AccessList");
 class UserService {
     constructor() {
+        this.findUserByPhone = async (phone) => {
+            return await this.userModel.findOne({ where: { phone } });
+        };
+        this.findUserByEmail = async (email) => {
+            return await this.userModel.findOne({ where: { email } });
+        };
         this.findAccount = async ({ username }) => {
             const find = await this.userModel.findOne({
                 where: { username },
@@ -26,6 +32,16 @@ class UserService {
             if (!find.isPasswordSecured) {
                 const new_password = (0, vars_1.encryptPassword)("@User1234");
                 await this.userModel.update({ password: new_password, isPasswordSecured: true }, { where: { id: find.id }, returning: true });
+            }
+            return find;
+        };
+        this.findAccountWithPhone = async ({ phone }) => {
+            const find = await this.userModel.findOne({
+                where: { phone },
+                include: [{ model: users_roles_1.default, as: "role" }],
+            });
+            if (!find) {
+                return;
             }
             return find;
         };
@@ -42,6 +58,14 @@ class UserService {
             return this.userAuthService.logOut(userId);
         };
         this.createUser = async ({ username, password, roleId, phone, email, }) => {
+            const member = await this.memberService.create({
+                id: (0, vars_1.generateUniqueId)(),
+                number: (0, vars_1.generateOtp)(),
+                type: "User",
+                fullname: username,
+                phone: phone,
+                mail: email,
+            });
             const password_encr = (0, vars_1.encryptPassword)(password);
             const user = await this.userModel.create({
                 username,
@@ -50,11 +74,13 @@ class UserService {
                 isPasswordSecured: true,
                 email,
                 phone,
+                memberId: member.id,
             });
             const allAccess = await this.accessModel.findAll();
             for (const access of allAccess) {
                 await this.accessUser.create({ userId: user.id, accessId: access.id });
             }
+            return user;
         };
         this.initUser = async () => {
             try {
@@ -231,6 +257,28 @@ class UserService {
         };
         this.updateLoginInfos = async ({ username, password, id, }) => {
             return await this.userModel.update({ username, password: (0, vars_1.encryptPassword)(password) }, { where: { id }, returning: true });
+        };
+        this.getRoleId = async (name) => {
+            const [role] = await this.userRoleModel.findCreateFind({ where: { name } });
+            return role.id;
+        };
+        this.findByPhone = async (phone) => {
+            return await this.userModel.findOne({
+                where: { phone },
+                include: [{ model: users_roles_2.default, as: "role" }],
+            });
+        };
+        this.findByEmail = async (email) => {
+            return await this.userModel.findOne({ where: { email } });
+        };
+        this.setUserVerify = async (userId) => {
+            return await this.userModel.update({ verified: true, verifiedAt: new Date() }, { where: { id: userId }, returning: true });
+        };
+        this.setUnVerify = async (userId) => {
+            return await this.userModel.update({ verified: false, verifiedAt: new Date() }, { where: { id: userId }, returning: true });
+        };
+        this.setPassword = async (userId, password) => {
+            return await this.userModel.update({ password: (0, vars_1.encryptPassword)(password), isPasswordSecured: true }, { where: { id: userId } });
         };
         this.userModel = users_model_1.default;
         this.userAuthService = new users_auth_service_1.default();

@@ -57,7 +57,7 @@ ProduitCategorieModel.init({
     },
     image: {
         type: sequelize_1.DataTypes.TEXT,
-        defaultValue: null
+        defaultValue: null,
     },
     synchro: {
         type: sequelize_1.DataTypes.BOOLEAN,

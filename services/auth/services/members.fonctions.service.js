@@ -7,7 +7,7 @@ const sequelize_1 = require("sequelize");
 const members_category_model_1 = __importDefault(require("../../../shared/models/members.category.model"));
 class MemberFonctionsService {
     constructor() {
-        this.findAll = async ({ limit, offset, search = "" }) => {
+        this.findAll = async ({ limit, offset, search = "", }) => {
             const whereTarget = {};
             if (search) {
                 whereTarget.name = { [sequelize_1.Op.like]: `%${search}%` };
@@ -15,9 +15,13 @@ class MemberFonctionsService {
             }
             return await this.memberFonctionModel.findAndCountAll({
                 where: whereTarget,
-                limit, offset,
-                attributes: ['id', 'name', 'description', 'createdAt', 'updatedAt'],
-                order: [['createdAt', 'desc'], ['updatedAt', 'desc']]
+                limit,
+                offset,
+                attributes: ["id", "name", "description", "createdAt", "updatedAt"],
+                order: [
+                    ["createdAt", "desc"],
+                    ["updatedAt", "desc"],
+                ],
             });
         };
         this.create = async (data) => {

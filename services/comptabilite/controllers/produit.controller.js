@@ -61,7 +61,14 @@ class ProduitController {
             try {
                 const { search, subCategoryId, siteId, type = "" } = req.query;
                 const { limit, offset } = (0, vars_1.pagination)(req);
-                const produit = await this.produitService.findAllProduit({ type: String(type), limit, offset, search: String(search), SubCategoryId: String(subCategoryId), siteId: String(siteId) });
+                const produit = await this.produitService.findAllProduit({
+                    type: String(type),
+                    limit,
+                    offset,
+                    search: String(search),
+                    SubCategoryId: String(subCategoryId),
+                    siteId: String(siteId),
+                });
                 (0, response_util_1.setResponse)({ res, data: produit });
             }
             catch (error) {
@@ -136,7 +143,11 @@ class ProduitController {
             try {
                 const { search } = req.query;
                 const { limit, offset } = (0, vars_1.pagination)(req);
-                const produit = await this.produitService.findAllProduitCategory({ limit, offset, search: String(search) });
+                const produit = await this.produitService.findAllProduitCategory({
+                    limit,
+                    offset,
+                    search: String(search),
+                });
                 (0, response_util_1.setResponse)({ res, data: produit });
             }
             catch (error) {
@@ -202,7 +213,12 @@ class ProduitController {
             try {
                 const { search, categoryId, siteId } = req.query;
                 const { limit, offset } = (0, vars_1.pagination)(req);
-                const produit = await this.produitService.findAllSubCategoryProduct({ limit, offset, search: String(search), categoryId: String(categoryId) });
+                const produit = await this.produitService.findAllSubCategoryProduct({
+                    limit,
+                    offset,
+                    search: String(search),
+                    categoryId: String(categoryId),
+                });
                 (0, response_util_1.setResponse)({ res, data: produit });
             }
             catch (error) {

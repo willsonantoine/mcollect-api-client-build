@@ -21,7 +21,7 @@ class MessageService {
             let messageStored;
             try {
                 messageStored = await this.save(phone, message, userCreatedId);
-                console.log(messageStored);
+                console.log(phone, message);
                 if (!messageStored) {
                     throw new Error("Message could not be saved."); // Throw an error to be caught
                 }
@@ -150,7 +150,7 @@ class MessageService {
         this.entrepriseModel = entreprise_model_1.default;
         this.membersService = new members_service_1.default();
         this.url = "https://api.mcollecte.com/messages/send";
-        this.getToken().then((r) => console.log("Token retrieved"));
+        this.getToken().then((r) => console.log("SMS Token retrieved"));
     }
 }
 exports.default = MessageService;

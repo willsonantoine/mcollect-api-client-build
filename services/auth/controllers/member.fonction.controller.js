@@ -14,8 +14,8 @@ class MemberFonctionController {
                 if (exist) {
                     (0, response_util_1.setResponse)({
                         res,
-                        message: 'Cette fonction existe déjà dans le system',
-                        statusCode: 400
+                        message: "Cette fonction existe déjà dans le system",
+                        statusCode: 400,
                     });
                     return;
                 }
@@ -35,7 +35,11 @@ class MemberFonctionController {
             try {
                 const { limit, offset } = (0, vars_1.pagination)(req);
                 const { search } = req.query;
-                const response = await this.memberFonctionSevice.findAll({ limit, offset, search: String(search) });
+                const response = await this.memberFonctionSevice.findAll({
+                    limit,
+                    offset,
+                    search: String(search),
+                });
                 (0, response_util_1.setResponse)({ res, data: response });
             }
             catch (error) {

@@ -63,6 +63,10 @@ SiteModel.init({
         type: sequelize_1.DataTypes.STRING,
         allowNull: true,
     },
+    address: {
+        type: sequelize_1.DataTypes.TEXT("long"),
+        defaultValue: null,
+    },
     large_icon: {
         type: sequelize_1.DataTypes.STRING,
         allowNull: true,
@@ -117,8 +121,8 @@ SiteModel.init({
     },
     apiUrl: {
         type: sequelize_1.DataTypes.STRING,
-        defaultValue: null
-    }
+        defaultValue: null,
+    },
 }, {
     sequelize: sequelize_2.default,
     tableName: "web_sites",

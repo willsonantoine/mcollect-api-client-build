@@ -191,14 +191,42 @@ class MembersService {
             if (findUser) {
                 await findUser.update({ showOnWebSite: !findUser.showOnWebSite });
             }
-            const findSiteMember = await this.siteMember.findOne({ where: { memberId, siteId } });
+            const findSiteMember = await this.siteMember.findOne({
+                where: { memberId, siteId },
+            });
             if (findSiteMember) {
-                await findSiteMember.update({ status: !findSiteMember.status, statusAt: new Date() });
+                await findSiteMember.update({
+                    status: !findSiteMember.status,
+                    statusAt: new Date(),
+                });
             }
             else {
-                await this.siteMember.create({ memberId, siteId, status: true, statusAt: new Date() });
+                await this.siteMember.create({
+                    memberId,
+                    siteId,
+                    status: true,
+                    statusAt: new Date(),
+                });
             }
             return findUser;
+        };
+        this.getMemberId = async (idAgent, nameAgent) => {
+            const find = await this.membersModel.findOne({
+                where: { number: idAgent },
+            });
+            if (!find) {
+                const member = await this.membersModel.create({
+                    fullname: nameAgent,
+                    type: "Agent",
+                    number: idAgent,
+                    joinedAt: new Date(),
+                    gender: "Autre",
+                });
+                return member.id;
+            }
+            else {
+                return find.id;
+            }
         };
         this.membersModel = members_model_1.default;
         this.membersFonctionModel = members_category_model_1.default; //

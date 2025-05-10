@@ -250,16 +250,28 @@ class WebService {
                     ["updatedAt", "desc"],
                 ],
                 include: [
-                    { model: users_model_1.default, as: 'userUpdated', attributes: ['id', 'username', 'avatar'] },
-                    { model: users_model_1.default, as: 'userCreated', attributes: ['id', 'username', 'avatar'] },
-                    { model: site_containt_category_model_1.default, as: 'category', attributes: ['id', 'name'] },
-                ]
+                    {
+                        model: users_model_1.default,
+                        as: "userUpdated",
+                        attributes: ["id", "username", "avatar"],
+                    },
+                    {
+                        model: users_model_1.default,
+                        as: "userCreated",
+                        attributes: ["id", "username", "avatar"],
+                    },
+                    {
+                        model: site_containt_category_model_1.default,
+                        as: "category",
+                        attributes: ["id", "name"],
+                    },
+                ],
             });
         };
         this.SiteContaintFindOne = async ({ id }) => {
             return await this.siteContaint.findByPk(id);
         };
-        this.SiteContaintFindTitle = async ({ title, type }) => {
+        this.SiteContaintFindTitle = async ({ title, type, }) => {
             console.log(title);
             return await this.siteContaint.findOne({ where: { title, type } });
         };

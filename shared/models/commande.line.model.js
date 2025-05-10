@@ -38,53 +38,40 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
 const sequelize_2 = __importStar(require("../utils/sequelize"));
-const produit_category_model_copy_1 = __importDefault(require("./produit.category.model copy"));
-const users_model_1 = __importDefault(require("./users.model"));
-class ProduitSubCategorieModel extends sequelize_1.Model {
+const produit_model_1 = __importDefault(require("./produit.model"));
+const commande_model_1 = __importDefault(require("./commande.model"));
+class CommandeLineModel extends sequelize_1.Model {
 }
-ProduitSubCategorieModel.init({
+CommandeLineModel.init({
     id: {
         type: sequelize_1.DataTypes.STRING,
-        primaryKey: true,
         defaultValue: sequelize_1.DataTypes.UUIDV4,
+        primaryKey: true,
     },
-    name: {
-        type: sequelize_1.DataTypes.STRING,
-        allowNull: true,
+    quantity: {
+        type: sequelize_1.DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 1,
     },
-    description: {
-        type: sequelize_1.DataTypes.TEXT("long"),
-        allowNull: true,
-    },
-    synchro: {
-        type: sequelize_1.DataTypes.BOOLEAN,
-        defaultValue: false,
-    },
-    image: {
-        type: sequelize_1.DataTypes.STRING,
-        defaultValue: null,
+    price: {
+        type: sequelize_1.DataTypes.FLOAT,
+        allowNull: false,
+        defaultValue: 0,
     },
 }, {
-    sequelize: sequelize_2.default,
-    tableName: "produit_sub_category",
+    sequelize: sequelize_2.default, // passing the `sequelize` instance is required
+    tableName: "commandes_line",
+    timestamps: true, // enable timestamps
     paranoid: true,
-    charset: sequelize_2.CHARSET,
     collate: sequelize_2.COLLATE,
+    charset: sequelize_2.CHARSET,
 });
-ProduitSubCategorieModel.belongsTo(produit_category_model_copy_1.default, {
-    as: "category",
-    foreignKey: "categoryId",
+CommandeLineModel.belongsTo(produit_model_1.default, {
+    foreignKey: "produitId",
+    as: "produit",
 });
-ProduitSubCategorieModel.belongsTo(users_model_1.default, {
-    as: "userCreated",
-    foreignKey: "userCreatedId",
+CommandeLineModel.belongsTo(commande_model_1.default, {
+    foreignKey: "commandeId",
+    as: "commande",
 });
-ProduitSubCategorieModel.belongsTo(users_model_1.default, {
-    as: "userUpdated",
-    foreignKey: "userUpdatedId",
-});
-ProduitSubCategorieModel.belongsTo(users_model_1.default, {
-    as: "userDeleted",
-    foreignKey: "userDeletedId",
-});
-exports.default = ProduitSubCategorieModel;
+exports.default = CommandeLineModel;

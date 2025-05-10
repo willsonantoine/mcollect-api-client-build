@@ -14,7 +14,7 @@ class ContactMessageController {
                 const { token } = req.params;
                 const web = await this.webSiteService.SiteFindByToken(token);
                 if (!web) {
-                    (0, response_util_1.setResponse)({ res, message: 'Site web non trouvé', statusCode: 400 });
+                    (0, response_util_1.setResponse)({ res, message: "Site web non trouvé", statusCode: 400 });
                     return;
                 }
                 const result = await this.contactMessageService.create(Object.assign(Object.assign({}, req.body), { siteId: web.id }));
@@ -34,7 +34,12 @@ class ContactMessageController {
                 const { search } = req.query;
                 const { siteId } = req.params;
                 const { limit, offset } = (0, vars_1.pagination)(req);
-                const result = await this.contactMessageService.findAll({ limit, offset, search: String(search), siteId });
+                const result = await this.contactMessageService.findAll({
+                    limit,
+                    offset,
+                    search: String(search),
+                    siteId,
+                });
                 (0, response_util_1.setResponse)({ res, data: result });
             }
             catch (error) {

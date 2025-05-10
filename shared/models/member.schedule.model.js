@@ -38,53 +38,59 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
 const sequelize_2 = __importStar(require("../utils/sequelize"));
-const produit_category_model_copy_1 = __importDefault(require("./produit.category.model copy"));
+const members_model_1 = __importDefault(require("./members.model"));
 const users_model_1 = __importDefault(require("./users.model"));
-class ProduitSubCategorieModel extends sequelize_1.Model {
+const personnel_service_model_1 = __importDefault(require("./personnel.service.model"));
+class MemberScheduleModel extends sequelize_1.Model {
 }
-ProduitSubCategorieModel.init({
+MemberScheduleModel.init({
     id: {
-        type: sequelize_1.DataTypes.STRING,
-        primaryKey: true,
+        type: sequelize_1.DataTypes.UUID,
         defaultValue: sequelize_1.DataTypes.UUIDV4,
+        primaryKey: true,
     },
-    name: {
+    dateStart: {
+        type: sequelize_1.DataTypes.STRING,
+        allowNull: false,
+    },
+    dateEnd: {
+        type: sequelize_1.DataTypes.STRING,
+        allowNull: false,
+    },
+    status: {
+        type: sequelize_1.DataTypes.STRING,
+        allowNull: false,
+    },
+    observation: {
         type: sequelize_1.DataTypes.STRING,
         allowNull: true,
     },
     description: {
-        type: sequelize_1.DataTypes.TEXT("long"),
-        allowNull: true,
-    },
-    synchro: {
-        type: sequelize_1.DataTypes.BOOLEAN,
-        defaultValue: false,
-    },
-    image: {
         type: sequelize_1.DataTypes.STRING,
-        defaultValue: null,
+        allowNull: true,
     },
 }, {
     sequelize: sequelize_2.default,
-    tableName: "produit_sub_category",
+    tableName: "member_schedule",
+    timestamps: true,
     paranoid: true,
-    charset: sequelize_2.CHARSET,
     collate: sequelize_2.COLLATE,
+    charset: sequelize_2.CHARSET,
 });
-ProduitSubCategorieModel.belongsTo(produit_category_model_copy_1.default, {
-    as: "category",
-    foreignKey: "categoryId",
+MemberScheduleModel.belongsTo(members_model_1.default, {
+    as: "member",
+    foreignKey: "memberId",
 });
-ProduitSubCategorieModel.belongsTo(users_model_1.default, {
+MemberScheduleModel.belongsTo(users_model_1.default, {
     as: "userCreated",
     foreignKey: "userCreatedId",
 });
-ProduitSubCategorieModel.belongsTo(users_model_1.default, {
+MemberScheduleModel.belongsTo(users_model_1.default, {
     as: "userUpdated",
     foreignKey: "userUpdatedId",
 });
-ProduitSubCategorieModel.belongsTo(users_model_1.default, {
-    as: "userDeleted",
-    foreignKey: "userDeletedId",
+MemberScheduleModel.belongsTo(personnel_service_model_1.default, {
+    as: "personnelService",
+    foreignKey: "personnelServiceId",
 });
-exports.default = ProduitSubCategorieModel;
+exports.default = MemberScheduleModel;

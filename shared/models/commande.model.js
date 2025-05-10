@@ -36,55 +36,69 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.CommandeStatus = void 0;
 const sequelize_1 = require("sequelize");
 const sequelize_2 = __importStar(require("../utils/sequelize"));
-const produit_category_model_copy_1 = __importDefault(require("./produit.category.model copy"));
+const currency_model_1 = __importDefault(require("./currency.model"));
 const users_model_1 = __importDefault(require("./users.model"));
-class ProduitSubCategorieModel extends sequelize_1.Model {
+const site_mode_1 = __importDefault(require("./site.mode"));
+var CommandeStatus;
+(function (CommandeStatus) {
+    CommandeStatus["PENDING"] = "pending";
+    CommandeStatus["IN_PROGRESS"] = "in_progress";
+    CommandeStatus["COMPLETED"] = "completed";
+    CommandeStatus["CANCELLED"] = "cancelled";
+    CommandeStatus["REJECTED"] = "rejected";
+    CommandeStatus["FAILED"] = "failed";
+})(CommandeStatus || (exports.CommandeStatus = CommandeStatus = {}));
+class CommandeModel extends sequelize_1.Model {
 }
-ProduitSubCategorieModel.init({
+CommandeModel.init({
     id: {
         type: sequelize_1.DataTypes.STRING,
-        primaryKey: true,
         defaultValue: sequelize_1.DataTypes.UUIDV4,
+        primaryKey: true,
     },
-    name: {
+    status: {
+        type: sequelize_1.DataTypes.STRING,
+        allowNull: true,
+        defaultValue: CommandeStatus.PENDING,
+    },
+    statusAt: {
+        type: sequelize_1.DataTypes.DATE,
+        allowNull: true,
+    },
+    phoneNumber: {
         type: sequelize_1.DataTypes.STRING,
         allowNull: true,
     },
-    description: {
-        type: sequelize_1.DataTypes.TEXT("long"),
+    amount: {
+        type: sequelize_1.DataTypes.FLOAT,
+        allowNull: false,
+    },
+    payementMethod: {
+        type: sequelize_1.DataTypes.STRING,
         allowNull: true,
     },
-    synchro: {
-        type: sequelize_1.DataTypes.BOOLEAN,
-        defaultValue: false,
-    },
-    image: {
+    commadeNumber: {
         type: sequelize_1.DataTypes.STRING,
-        defaultValue: null,
+        allowNull: true,
     },
 }, {
-    sequelize: sequelize_2.default,
-    tableName: "produit_sub_category",
+    sequelize: sequelize_2.default, // passing the `sequelize` instance is required
+    tableName: "commandes",
+    timestamps: true, // enable timestamps
     paranoid: true,
-    charset: sequelize_2.CHARSET,
     collate: sequelize_2.COLLATE,
+    charset: sequelize_2.CHARSET,
 });
-ProduitSubCategorieModel.belongsTo(produit_category_model_copy_1.default, {
-    as: "category",
-    foreignKey: "categoryId",
+CommandeModel.belongsTo(currency_model_1.default, {
+    foreignKey: "currencyId",
+    as: "currency",
 });
-ProduitSubCategorieModel.belongsTo(users_model_1.default, {
-    as: "userCreated",
-    foreignKey: "userCreatedId",
+CommandeModel.belongsTo(users_model_1.default, {
+    foreignKey: "userId",
+    as: "user",
 });
-ProduitSubCategorieModel.belongsTo(users_model_1.default, {
-    as: "userUpdated",
-    foreignKey: "userUpdatedId",
-});
-ProduitSubCategorieModel.belongsTo(users_model_1.default, {
-    as: "userDeleted",
-    foreignKey: "userDeletedId",
-});
-exports.default = ProduitSubCategorieModel;
+CommandeModel.belongsTo(site_mode_1.default, { as: "site", foreignKey: "siteId" });
+exports.default = CommandeModel;

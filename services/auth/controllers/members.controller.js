@@ -237,7 +237,8 @@ class MembersController {
                 const { memberId, siteId } = req.params;
                 const result = await this.memberService.setShowVisibleOnWeb(memberId, siteId);
                 (0, response_util_1.setResponse)({
-                    res, message: "Membre modifié avec succès"
+                    res,
+                    message: "Membre modifié avec succès",
                 });
             }
             catch (error) {

@@ -38,53 +38,54 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
 const sequelize_2 = __importStar(require("../utils/sequelize"));
-const produit_category_model_copy_1 = __importDefault(require("./produit.category.model copy"));
-const users_model_1 = __importDefault(require("./users.model"));
-class ProduitSubCategorieModel extends sequelize_1.Model {
+const members_model_1 = __importDefault(require("./members.model"));
+class MemberPresenceModel extends sequelize_1.Model {
 }
-ProduitSubCategorieModel.init({
+MemberPresenceModel.init({
     id: {
-        type: sequelize_1.DataTypes.STRING,
-        primaryKey: true,
+        type: sequelize_1.DataTypes.UUID,
         defaultValue: sequelize_1.DataTypes.UUIDV4,
+        primaryKey: true,
     },
-    name: {
+    date: {
+        type: sequelize_1.DataTypes.DATE,
+        allowNull: false,
+    },
+    status: {
+        type: sequelize_1.DataTypes.STRING,
+        allowNull: false,
+        defaultValue: "inTime",
+    },
+    reason: {
         type: sequelize_1.DataTypes.STRING,
         allowNull: true,
     },
-    description: {
-        type: sequelize_1.DataTypes.TEXT("long"),
+    scanList: {
+        type: sequelize_1.DataTypes.JSON, // Assuming scanList is a JSON array
         allowNull: true,
     },
-    synchro: {
-        type: sequelize_1.DataTypes.BOOLEAN,
-        defaultValue: false,
-    },
-    image: {
+    timeIn: {
         type: sequelize_1.DataTypes.STRING,
-        defaultValue: null,
+        allowNull: true,
+    },
+    timeOut: {
+        type: sequelize_1.DataTypes.STRING,
+        allowNull: true,
+    },
+    workTimeMunite: {
+        type: sequelize_1.DataTypes.STRING,
+        allowNull: true,
     },
 }, {
-    sequelize: sequelize_2.default,
-    tableName: "produit_sub_category",
-    paranoid: true,
-    charset: sequelize_2.CHARSET,
+    sequelize: sequelize_2.default, // Pass the `sequelize` instance
+    tableName: "member_presences",
+    paranoid: true, // Enable soft deletes
+    timestamps: true, // Enable createdAt and updatedAt fields
     collate: sequelize_2.COLLATE,
+    charset: sequelize_2.CHARSET,
 });
-ProduitSubCategorieModel.belongsTo(produit_category_model_copy_1.default, {
-    as: "category",
-    foreignKey: "categoryId",
+MemberPresenceModel.belongsTo(members_model_1.default, {
+    as: "member",
+    foreignKey: "memberId",
 });
-ProduitSubCategorieModel.belongsTo(users_model_1.default, {
-    as: "userCreated",
-    foreignKey: "userCreatedId",
-});
-ProduitSubCategorieModel.belongsTo(users_model_1.default, {
-    as: "userUpdated",
-    foreignKey: "userUpdatedId",
-});
-ProduitSubCategorieModel.belongsTo(users_model_1.default, {
-    as: "userDeleted",
-    foreignKey: "userDeletedId",
-});
-exports.default = ProduitSubCategorieModel;
+exports.default = MemberPresenceModel;

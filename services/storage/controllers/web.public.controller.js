@@ -128,7 +128,10 @@ class WebPublicController {
                 const { categoryId, subCategoryId, search } = req.query;
                 const categ = await this.webPublicService.getProductCategorie({ token });
                 const result = await this.webPublicService.getProduct({
-                    categoryId: String(categoryId), subCategoryId: String(subCategoryId), search: String(search), token
+                    categoryId: String(categoryId),
+                    subCategoryId: String(subCategoryId),
+                    search: String(search),
+                    token,
                 });
                 (0, response_util_1.setResponse)({
                     res,
@@ -149,7 +152,7 @@ class WebPublicController {
                 const result = await this.webPublicService.getMembers(token);
                 (0, response_util_1.setResponse)({
                     res,
-                    data: result
+                    data: result,
                 });
             }
             catch (error) {

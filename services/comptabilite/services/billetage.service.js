@@ -103,7 +103,7 @@ class BilletageService {
                 // Use Sequelize's date functions for safety and portability if possible
                 // If date_save is DATETIME, you can use:
                 [sequelize_1.Op.and]: [
-                    sequelize_1.Sequelize.where(sequelize_1.Sequelize.fn('DATE', sequelize_1.Sequelize.col('operation.date_save')), '=', date) // Use validated/formatted date
+                    sequelize_1.Sequelize.where(sequelize_1.Sequelize.fn("DATE", sequelize_1.Sequelize.col("operation.date_save")), "=", date), // Use validated/formatted date
                 ],
                 // If date_save is already DATE type, it's simpler:
                 // date_save: date, // Use validated/formatted date
@@ -115,7 +115,7 @@ class BilletageService {
             }
             if (userCreatedId) {
                 // Assuming the association alias is 'userCreated' and the foreign key is 'user_create'
-                whereOperations['$userCreated.id$'] = userCreatedId; // Correct way to reference associated column in where
+                whereOperations["$userCreated.id$"] = userCreatedId; // Correct way to reference associated column in where
                 // Alternative if foreign key is directly on OperationModel:
                 // whereOperations.user_create = userCreatedId;
             }
@@ -179,8 +179,8 @@ class BilletageService {
                 ],
                 order: [
                     // Correct ordering syntax for associated columns
-                    [sequelize_1.Sequelize.literal('`operation`.`type`'), 'ASC'],
-                    [sequelize_1.Sequelize.literal('`currency`.`id`'), 'ASC'],
+                    [sequelize_1.Sequelize.literal("`operation`.`type`"), "ASC"],
+                    [sequelize_1.Sequelize.literal("`currency`.`id`"), "ASC"],
                     // Simpler if models/aliases don't clash:
                     // ['operation', 'type', 'ASC'],
                     // ['currency', 'id', 'ASC'],

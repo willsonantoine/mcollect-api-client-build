@@ -99,7 +99,7 @@ class ComptesService {
                     "updatedAt",
                     "isPeriodique",
                     "formuleBalance",
-                    "isVerifyBalance"
+                    "isVerifyBalance",
                 ],
                 include: [
                     {

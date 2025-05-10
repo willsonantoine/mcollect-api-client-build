@@ -161,7 +161,7 @@ class CompteController {
         };
         this.UpdateAccountInfos = async (req, res) => {
             try {
-                const { name, description, number, isPeriodique, classId, isActif, memberId, formuleBalance, isVerifyBalance } = req.body;
+                const { name, description, number, isPeriodique, classId, isActif, memberId, formuleBalance, isVerifyBalance, } = req.body;
                 const id = req.params.id;
                 const userId = req.user.id;
                 const response = await this.comptesService.UpdateAccountInfos(id, {
@@ -175,7 +175,7 @@ class CompteController {
                     memberId: memberId || null,
                     formuleBalance,
                     isVerifyBalance,
-                    userUpdatedId: userId
+                    userUpdatedId: userId,
                 });
                 (0, response_util_1.setResponse)({ res, data: response });
             }
@@ -190,9 +190,13 @@ class CompteController {
         };
         this.createAccountInfos = async (req, res) => {
             try {
-                const { name, description, number, isPeriodique, classId, isActif, memberId, formuleBalance, isVerifyBalance } = req.body;
+                const { name, description, number, isPeriodique, classId, isActif, memberId, formuleBalance, isVerifyBalance, } = req.body;
                 if (!name && !number) {
-                    (0, response_util_1.setResponse)({ res, message: `Le nom de compte et numéro de compte sont obligatoire`, statusCode: 400 });
+                    (0, response_util_1.setResponse)({
+                        res,
+                        message: `Le nom de compte et numéro de compte sont obligatoire`,
+                        statusCode: 400,
+                    });
                     return;
                 }
                 const userId = req.user.id;
@@ -216,7 +220,7 @@ class CompteController {
                     memberId: memberId || null,
                     formuleBalance,
                     isVerifyBalance,
-                    userCreatedId: userId
+                    userCreatedId: userId,
                 });
                 (0, response_util_1.setResponse)({ res, data: response });
             }

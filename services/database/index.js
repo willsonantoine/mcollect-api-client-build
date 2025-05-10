@@ -10,9 +10,9 @@ const sequelize_1 = __importDefault(require("../../shared/utils/sequelize"));
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 const app = (0, app_init_1.AppInit)((0, express_1.default)());
-const modelsDir = path_1.default.join(__dirname, '../../shared/models');
-fs_1.default.readdirSync(modelsDir).forEach(file => {
-    if (file.endsWith('.model.ts') || file.endsWith('.model.js')) {
+const modelsDir = path_1.default.join(__dirname, "../../shared/models");
+fs_1.default.readdirSync(modelsDir).forEach((file) => {
+    if (file.endsWith(".model.ts") || file.endsWith(".model.js")) {
         require(path_1.default.join(modelsDir, file));
     }
 });

@@ -43,4 +43,13 @@ const updateUserInfos = [
     (0, express_validator_1.body)("email").notEmpty().withMessage("Address email oblitoire"),
     (0, express_validator_1.body)("roleId").notEmpty().withMessage("Le role est obligatoire"),
 ];
-exports.default = { login, createMembers, updateUserInfos, changeLoginInfos };
+const recoverPassword = [
+    (0, express_validator_1.body)("phone").notEmpty().withMessage("Numero de telephone oblitoire"),
+];
+exports.default = {
+    login,
+    createMembers,
+    updateUserInfos,
+    changeLoginInfos,
+    recoverPassword,
+};

@@ -46,36 +46,41 @@ ContactMessageModel.init({
     id: {
         type: sequelize_1.DataTypes.STRING,
         defaultValue: sequelize_1.DataTypes.UUIDV4,
-        primaryKey: true
+        primaryKey: true,
     },
     name: {
         type: sequelize_1.DataTypes.STRING,
-        defaultValue: null
+        defaultValue: null,
     },
     email: {
         type: sequelize_1.DataTypes.STRING,
-        defaultValue: null
+        defaultValue: null,
     },
     sujet: {
         type: sequelize_1.DataTypes.STRING,
-        defaultValue: null
+        defaultValue: null,
     },
     message: {
         type: sequelize_1.DataTypes.STRING,
-        defaultValue: null
+        defaultValue: null,
     },
     hasRead: {
         type: sequelize_1.DataTypes.BOOLEAN,
-        defaultValue: false
+        defaultValue: false,
     },
     hasReadAt: {
         type: sequelize_1.DataTypes.DATE,
-        defaultValue: null
-    }
+        defaultValue: null,
+    },
 }, {
-    sequelize: sequelize_2.default, tableName: 'web_contact_messages',
-    charset: sequelize_2.CHARSET, collate: sequelize_2.COLLATE
+    sequelize: sequelize_2.default,
+    tableName: "web_contact_messages",
+    charset: sequelize_2.CHARSET,
+    collate: sequelize_2.COLLATE,
 });
-ContactMessageModel.belongsTo(users_model_1.default, { as: 'userHasRead', foreignKey: 'hasReadByUserId' });
-ContactMessageModel.belongsTo(site_mode_1.default, { as: 'site', foreignKey: 'siteId' });
+ContactMessageModel.belongsTo(users_model_1.default, {
+    as: "userHasRead",
+    foreignKey: "hasReadByUserId",
+});
+ContactMessageModel.belongsTo(site_mode_1.default, { as: "site", foreignKey: "siteId" });
 exports.default = ContactMessageModel;

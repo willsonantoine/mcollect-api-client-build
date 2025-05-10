@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getDateTimeFull = exports.generateRandomPassword = exports.comparePassword = exports.encryptPasswordAsync = exports.encryptPassword = exports.sanitarizeId = exports.formatDateString = exports.isStrongPassword = exports.Validate = exports.pagination = exports.getDateTime = exports.getDate = void 0;
+exports.generateOtp = exports.isEmail = exports.getDateTimeFull = exports.generateRandomPassword = exports.comparePassword = exports.encryptPasswordAsync = exports.encryptPassword = exports.sanitarizeId = exports.formatDateString = exports.isStrongPassword = exports.Validate = exports.pagination = exports.getDateTime = exports.getDate = void 0;
 exports.writeLogToFile = writeLogToFile;
 exports.generateStrongPassword = generateStrongPassword;
 exports.getDeviceType = getDeviceType;
@@ -14,11 +14,16 @@ exports.generateUuidToken = generateUuidToken;
 exports.generateUniqueId = generateUniqueId;
 exports.isValidToken = isValidToken;
 exports.formatDateSql = formatDateSql;
+exports.getTimeDifferenceString = getTimeDifferenceString;
+exports.getMinutesBetweenTimes = getMinutesBetweenTimes;
+exports.getHoursAndMinutesBetweenTimes = getHoursAndMinutesBetweenTimes;
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 const moment_1 = __importDefault(require("moment"));
+const locale_1 = require("date-fns/locale");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const response_util_1 = require("./response.util");
+const date_fns_1 = require("date-fns");
 async function writeLogToFile(log, file = "log", send_to_slake = true) {
     try {
         const logDirectory = "./logs";
@@ -237,3 +242,87 @@ const getDateTimeFull = (dateTimeParam = new Date()) => {
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 };
 exports.getDateTimeFull = getDateTimeFull;
+const isEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+};
+exports.isEmail = isEmail;
+function getTimeDifferenceString(dateString) {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+        return "Invalid date";
+    }
+    const now = new Date();
+    const relativeDate = (0, date_fns_1.formatDistanceStrict)(date, now, {
+        addSuffix: true,
+        locale: locale_1.fr,
+    });
+    return relativeDate;
+}
+const generateOtp = () => {
+    const otp = Math.floor(100000 + Math.random() * 900000);
+    return otp.toString();
+};
+exports.generateOtp = generateOtp;
+/**
+ * Calcule la différence en minutes entre deux heures données au format "HH:MM".
+ *
+ * @param time1Str La première heure (ex: "10:30").
+ * @param time2Str La deuxième heure (ex: "11:15").
+ * @returns Le nombre total de minutes de différence, ou NaN si les formats sont invalides.
+ */
+function getMinutesBetweenTimes(time1Str, time2Str) {
+    /**
+     * Fonction d'aide pour convertir une chaîne "HH:MM" en nombre total de minutes depuis 00:00.
+     * @param timeStr L'heure au format "HH:MM".
+     * @returns Le nombre total de minutes, ou null si le format est invalide.
+     */
+    const parseTimeToMinutes = (timeStr) => {
+        const parts = timeStr.split(":");
+        if (parts.length !== 2) {
+            console.error(`Format d'heure invalide : ${timeStr}. Attendu "HH:MM".`);
+            return null;
+        }
+        const hours = parseInt(parts[0], 10);
+        const minutes = parseInt(parts[1], 10);
+        if (isNaN(hours) ||
+            isNaN(minutes) ||
+            hours < 0 ||
+            hours > 23 ||
+            minutes < 0 ||
+            minutes > 59) {
+            console.error(`Valeurs d'heure ou de minute invalides dans : ${timeStr}.`);
+            return null;
+        }
+        return hours * 60 + minutes;
+    };
+    const totalMinutes1 = parseTimeToMinutes(time1Str);
+    const totalMinutes2 = parseTimeToMinutes(time2Str);
+    if (totalMinutes1 === null || totalMinutes2 === null) {
+        return NaN; // Indique une erreur due à un format d'entrée incorrect
+    }
+    return Math.abs(totalMinutes1 - totalMinutes2);
+}
+/**
+ * Calcule la différence entre deux heures et la retourne sous forme d'heures et de minutes.
+ *
+ * @param time1Str La première heure (ex: "10:30").
+ * @param time2Str La deuxième heure (ex: "11:15").
+ * @returns Un objet { hours: number, minutes: number, formatted: string } ou null si les formats sont invalides.
+ */
+function getHoursAndMinutesBetweenTimes(time1Str, time2Str) {
+    const totalDifferenceInMinutes = getMinutesBetweenTimes(time1Str, time2Str);
+    if (isNaN(totalDifferenceInMinutes)) {
+        return null; // Erreur de format, propagée par getMinutesBetweenTimes
+    }
+    const hours = Math.floor(totalDifferenceInMinutes / 60);
+    const minutes = totalDifferenceInMinutes % 60;
+    // Formatage pour avoir toujours deux chiffres (ex: "02" au lieu de "2")
+    const formattedHours = String(hours).padStart(2, "0");
+    const formattedMinutes = String(minutes).padStart(2, "0");
+    return {
+        hours: hours,
+        minutes: minutes,
+        formatted: `${formattedHours}:${formattedMinutes}`,
+    };
+}

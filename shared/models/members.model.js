@@ -277,8 +277,8 @@ MemberModel.init({
     },
     showOnWebSite: {
         type: sequelize_1.DataTypes.BOOLEAN,
-        defaultValue: false
-    }
+        defaultValue: false,
+    },
 }, {
     sequelize: sequelize_2.default,
     tableName: "membres",

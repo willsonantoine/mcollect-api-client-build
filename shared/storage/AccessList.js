@@ -135,6 +135,30 @@ exports.DefaultAccessList = [
         nameDescription: "Cette interface affiche les visite en cours sur le site web",
         type: "interface",
     },
+    {
+        id: 123,
+        name: "Présence",
+        nameDescription: "Affiche la liste des présences des agents",
+        type: "interface",
+    },
+    {
+        id: 124,
+        name: "Horaire de service",
+        nameDescription: "Gère les horaires de service des agents",
+        type: "interface",
+    },
+    {
+        id: 125,
+        name: "Services",
+        nameDescription: "Liste des services",
+        type: "interface",
+    },
+    {
+        id: 126,
+        name: "Commandes",
+        nameDescription: "Visualiser toute les commandes des clients",
+        type: "interace",
+    },
     // Taches (Actions spécifiques)
     {
         id: 200, // Préfixe 200 pour les tâches générales

@@ -69,8 +69,8 @@ ProduitModel.init({
         defaultValue: 0,
     },
     url: {
-        type: sequelize_1.DataTypes.TEXT('long'),
-        defaultValue: null
+        type: sequelize_1.DataTypes.TEXT("long"),
+        defaultValue: null,
     },
     qte_min: {
         type: sequelize_1.DataTypes.FLOAT,
@@ -93,33 +93,33 @@ ProduitModel.init({
         defaultValue: false,
     },
     images: {
-        type: sequelize_1.DataTypes.TEXT('long'),
-        defaultValue: null
+        type: sequelize_1.DataTypes.TEXT("long"),
+        defaultValue: null,
     },
     reference: {
         type: sequelize_1.DataTypes.STRING,
-        defaultValue: null
+        defaultValue: null,
     },
     brand: {
         type: sequelize_1.DataTypes.STRING,
-        defaultValue: null
+        defaultValue: null,
     },
     etat: {
         type: sequelize_1.DataTypes.STRING,
-        defaultValue: null
+        defaultValue: null,
     },
     stockLocation: {
         type: sequelize_1.DataTypes.STRING,
-        defaultValue: null
+        defaultValue: null,
     },
     unite: {
         type: sequelize_1.DataTypes.STRING,
-        defaultValue: null
+        defaultValue: null,
     },
     showOnWeb: {
         type: sequelize_1.DataTypes.BOOLEAN,
-        defaultValue: false
-    }
+        defaultValue: false,
+    },
 }, {
     sequelize: sequelize_2.default,
     tableName: "produits",
@@ -128,8 +128,8 @@ ProduitModel.init({
     collate: sequelize_2.COLLATE,
 });
 ProduitModel.belongsTo(currency_model_1.default, {
-    as: 'currency',
-    foreignKey: 'currencyId'
+    as: "currency",
+    foreignKey: "currencyId",
 });
 ProduitModel.belongsTo(produit_subcategory_model_1.default, {
     as: "subCategory",
@@ -147,5 +147,5 @@ ProduitModel.belongsTo(users_model_1.default, {
     as: "userDeleted",
     foreignKey: "userDeletedId",
 });
-ProduitModel.belongsTo(site_mode_1.default, { as: 'site', foreignKey: 'siteId' });
+ProduitModel.belongsTo(site_mode_1.default, { as: "site", foreignKey: "siteId" });
 exports.default = ProduitModel;

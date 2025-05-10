@@ -10,6 +10,9 @@ const vars_1 = require("../../../shared/utils/vars");
 const auth_validator_1 = __importDefault(require("../validator/auth.validator"));
 const authToken_1 = require("../../../shared/middleware/authToken");
 const member_fonction_controller_1 = __importDefault(require("../controllers/member.fonction.controller"));
+const member_presence_controller_1 = __importDefault(require("../controllers/member.presence.controller"));
+const member_shedule_router_1 = __importDefault(require("./member.shedule.router"));
+const personnelle_service_router_1 = __importDefault(require("./personnelle.service.router"));
 const AuthRouter = express_1.default.Router();
 AuthRouter.post("/login", (0, vars_1.Validate)(auth_validator_1.default.login), users_controller_1.default.login);
 AuthRouter.get("/logOut", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin, authToken_1.EnumRoles.User]), users_controller_1.default.logOut);
@@ -33,9 +36,15 @@ AuthRouter.get("/get-all-roles", (0, authToken_1.AuthToken)([authToken_1.EnumRol
 AuthRouter.put("/add-access/:userId/:id", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), users_controller_1.default.addAccessToUser);
 AuthRouter.put("/init-password/:userId", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.SuperAdmin]), users_controller_1.default.initPassword);
 AuthRouter.put("/set-show-on-website/:memberId/:siteId", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.SuperAdmin]), members_controller_1.default.setShowVisibleOnWeb);
-// Members fonctions Router 
+// Members fonctions Router
 AuthRouter.post("/fonctions/create", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.SuperAdmin]), member_fonction_controller_1.default.create);
 AuthRouter.put("/fonctions/update/:id", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.SuperAdmin]), member_fonction_controller_1.default.update);
 AuthRouter.get("/fonctions/get", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.SuperAdmin]), member_fonction_controller_1.default.findAll);
 AuthRouter.delete("/fonctions/delete/:id", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.SuperAdmin]), member_fonction_controller_1.default.delete);
+AuthRouter.post("/create-account/:token", users_controller_1.default.create);
+AuthRouter.post("/presence/import", member_presence_controller_1.default.createPresences);
+AuthRouter.get("/presence/find", member_presence_controller_1.default.findAllPresence);
+// Shedule
+AuthRouter.use("/member-shedule", member_shedule_router_1.default);
+AuthRouter.use("/personnelle-service", personnelle_service_router_1.default);
 exports.default = AuthRouter;

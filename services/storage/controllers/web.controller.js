@@ -47,6 +47,7 @@ class WebController {
                     });
                     return;
                 }
+                console.log(req.body);
                 const result = await this.webService.SiteUpdate(id, req.body);
                 (0, response_util_1.setResponse)({
                     res,
@@ -110,7 +111,10 @@ class WebController {
             try {
                 const userCreatedId = req.user.id;
                 const type = req.body.type;
-                const exist = await this.webService.SiteContaintFindTitle({ title: req.body.title, type });
+                const exist = await this.webService.SiteContaintFindTitle({
+                    title: req.body.title,
+                    type,
+                });
                 if (exist) {
                     (0, response_util_1.setResponse)({
                         res,

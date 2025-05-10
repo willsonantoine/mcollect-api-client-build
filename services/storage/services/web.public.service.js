@@ -157,7 +157,7 @@ class WebPublicService {
                 await this.siteVisite.create({ ip, browser, devise, siteId });
             }
         };
-        this.getProduct = async ({ token, search, subCategoryId, categoryId }) => {
+        this.getProduct = async ({ token, search, subCategoryId, categoryId, }) => {
             const whereProduct = { showOnWeb: true };
             if (subCategoryId) {
                 whereProduct.subCategoryId = subCategoryId;
@@ -173,25 +173,58 @@ class WebPublicService {
             if (subCategoryId) {
                 whereCateg.categoryId = categoryId;
             }
-            return await this.produitsModel.findAll({
+            return await this.produitsModel.findAndCountAll({
                 where: whereProduct,
                 order: [
                     ["createdAt", "desc"],
                     ["updatedAt", "desc"],
                 ],
-                attributes: ['id', 'name', 'description', 'images', 'brand', 'type', 'stockLocation', 'url', 'unite', 'reference', 'price_max', 'currencyId', 'type', 'subCategoryId', 'createdAt', 'updatedAt', 'price_min', 'createdAt'],
+                attributes: [
+                    "id",
+                    "name",
+                    "description",
+                    "images",
+                    "brand",
+                    "type",
+                    "stockLocation",
+                    "url",
+                    "unite",
+                    "reference",
+                    "price_max",
+                    "currencyId",
+                    "type",
+                    "subCategoryId",
+                    "createdAt",
+                    "updatedAt",
+                    "price_min",
+                    "createdAt",
+                ],
                 include: [
                     {
-                        model: produit_subcategory_model_1.default, as: 'subCategory', where: whereCateg, attributes: ['id', 'name', 'description', 'image'],
-                        include: [{ model: produit_category_model_copy_1.default, as: 'category', attributes: ['id', 'name', 'description', 'image'] }],
+                        model: produit_subcategory_model_1.default,
+                        as: "subCategory",
+                        where: whereCateg,
+                        attributes: ["id", "name", "description", "image"],
+                        include: [
+                            {
+                                model: produit_category_model_copy_1.default,
+                                as: "category",
+                                attributes: ["id", "name", "description", "image"],
+                            },
+                        ],
                     },
                     {
-                        model: currency_model_1.default, as: 'currency', attributes: ['id', 'name']
+                        model: currency_model_1.default,
+                        as: "currency",
+                        attributes: ["id", "name"],
                     },
                     {
-                        model: site_mode_1.default, as: 'site', where: { token }, attributes: []
-                    }
-                ]
+                        model: site_mode_1.default,
+                        as: "site",
+                        where: { token },
+                        attributes: [],
+                    },
+                ],
             });
         };
         this.getProductCategorie = async ({ token }) => {
@@ -200,29 +233,31 @@ class WebPublicService {
                 where: {
                     showOnWeb: true,
                 },
-                attributes: ['id', 'subCategoryId'],
+                attributes: ["id", "subCategoryId"],
                 include: [
                     {
                         model: site_mode_1.default,
-                        as: 'site',
+                        as: "site",
                         where: { token },
-                        attributes: []
+                        attributes: [],
                     },
                 ],
             });
             // On extrait les IDs des sous-catégories utilisées
-            const subCategoryIds = [...new Set(produits.map((p) => p.subCategoryId))];
+            const subCategoryIds = [
+                ...new Set(produits.map((p) => p.subCategoryId)),
+            ];
             // On récupère maintenant les sous-catégories et leurs catégories parentes
             const subCategories = await produit_subcategory_model_1.default.findAll({
                 where: {
                     id: subCategoryIds,
                 },
-                attributes: ['id', 'name', 'description', 'image', 'categoryId'],
+                attributes: ["id", "name", "description", "image", "categoryId"],
                 include: [
                     {
                         model: produit_category_model_copy_1.default,
-                        as: 'category',
-                        attributes: ['id', 'name', 'description', 'image'],
+                        as: "category",
+                        attributes: ["id", "name", "description", "image"],
                     },
                 ],
             });
@@ -255,13 +290,20 @@ class WebPublicService {
                     ["createdAt", "desc"],
                     ["updatedAt", "desc"],
                 ],
-                attributes: ['id', 'statusAt', 'updatedAt'],
+                attributes: ["id", "statusAt", "updatedAt"],
                 include: [
                     { model: site_mode_1.default, as: "site", where: { token }, attributes: [] },
                     {
-                        model: members_model_1.default, as: "member",
-                        attributes: ['fullname', 'img', 'number', 'adress'],
-                        include: [{ model: members_category_model_1.default, as: 'fonction', attributes: ['name', 'description'] }]
+                        model: members_model_1.default,
+                        as: "member",
+                        attributes: ["fullname", "img", "number", "adress"],
+                        include: [
+                            {
+                                model: members_category_model_1.default,
+                                as: "fonction",
+                                attributes: ["name", "description"],
+                            },
+                        ],
                     },
                 ],
             });

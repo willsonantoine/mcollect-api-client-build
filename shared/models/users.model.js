@@ -105,6 +105,14 @@ UsersModel.init({
         defaultValue: new Date(),
         field: "updateAt",
     },
+    verified: {
+        type: sequelize_1.DataTypes.BOOLEAN,
+        defaultValue: false,
+    },
+    verifiedAt: {
+        type: sequelize_1.DataTypes.DATE,
+        defaultValue: new Date(),
+    },
 }, {
     sequelize: sequelize_2.default,
     tableName: "users",
