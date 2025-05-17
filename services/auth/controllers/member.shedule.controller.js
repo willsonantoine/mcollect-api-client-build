@@ -5,12 +5,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const member_shedule_service_1 = __importDefault(require("../services/member.shedule.service"));
 const response_util_1 = require("../../../shared/utils/response.util");
+const vars_1 = require("../../../shared/utils/vars");
 class MemberSheduleController {
     constructor() {
         this.create = async (req, res) => {
             try {
-                const { memberId, serviceId, startDate, endDate, status, observation, description, } = req.body;
-                const find = await this.memberSheduleService.findScheduleByMemberId(memberId, serviceId);
+                const { memberId, personnelServiceId, dateStart, dateEnd, status, observation, description, } = req.body;
+                const find = await this.memberSheduleService.findScheduleByMemberId(memberId, personnelServiceId, dateStart, dateEnd);
                 if (find) {
                     (0, response_util_1.setResponse)({
                         res,
@@ -21,9 +22,9 @@ class MemberSheduleController {
                 }
                 const response = await this.memberSheduleService.create({
                     memberId,
-                    personnelServiceId: serviceId,
-                    dateStart: startDate,
-                    dateEnd: endDate,
+                    personnelServiceId: personnelServiceId,
+                    dateStart,
+                    dateEnd,
                     status,
                     observation,
                     description,
@@ -41,7 +42,16 @@ class MemberSheduleController {
         };
         this.findAll = async (req, res) => {
             try {
-                const response = await this.memberSheduleService.findAll();
+                const { limit, offset } = (0, vars_1.pagination)(req);
+                const { memberId, dateStart, dateEnd, serviceId } = req.query;
+                const response = await this.memberSheduleService.findAll({
+                    offset,
+                    limit,
+                    memberId: String(memberId),
+                    dateEnd: String(dateEnd),
+                    dateStart: String(dateStart),
+                    serviceId: String(serviceId),
+                });
                 (0, response_util_1.setResponse)({ res, data: response });
             }
             catch (error) {
@@ -71,12 +81,12 @@ class MemberSheduleController {
         this.update = async (req, res) => {
             try {
                 const { id } = req.params;
-                const { memberId, serviceId, startDate, endDate, status, observation, description, } = req.body;
+                const { memberId, personnelServiceId, dateStart, dateEnd, status, observation, description, } = req.body;
                 const response = await this.memberSheduleService.update(id, {
                     memberId,
-                    personnelServiceId: serviceId,
-                    dateStart: startDate,
-                    dateEnd: endDate,
+                    personnelServiceId: personnelServiceId,
+                    dateStart,
+                    dateEnd,
                     status,
                     observation,
                     description,

@@ -10,7 +10,6 @@ const site_members_model_1 = __importDefault(require("../../../shared/models/sit
 class MembersService {
     constructor() {
         this.findAll = async ({ limit = 10, offset = 0, search, gender, type = "", date1 = "", date2 = "", }) => {
-            console.log(date1, date2);
             const whereTarget = date1 && date2
                 ? {
                     createdAt: {

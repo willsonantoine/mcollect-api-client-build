@@ -90,7 +90,7 @@ MemberScheduleModel.belongsTo(users_model_1.default, {
     foreignKey: "userUpdatedId",
 });
 MemberScheduleModel.belongsTo(personnel_service_model_1.default, {
-    as: "personnelService",
+    as: "service",
     foreignKey: "personnelServiceId",
 });
 exports.default = MemberScheduleModel;
