@@ -38,71 +38,40 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
 const sequelize_2 = __importStar(require("../utils/sequelize"));
-const members_model_1 = __importDefault(require("./members.model"));
 const users_model_1 = __importDefault(require("./users.model"));
-const personnel_service_model_1 = __importDefault(require("./personnel.service.model"));
-class MemberScheduleModel extends sequelize_1.Model {
+class SheduleFreeDaysModel extends sequelize_1.Model {
 }
-MemberScheduleModel.init({
+SheduleFreeDaysModel.init({
     id: {
-        type: sequelize_1.DataTypes.UUID,
+        type: sequelize_1.DataTypes.STRING,
         defaultValue: sequelize_1.DataTypes.UUIDV4,
         primaryKey: true,
     },
-    dateStart: {
+    name: {
         type: sequelize_1.DataTypes.STRING,
-        allowNull: false,
-    },
-    dateEnd: {
-        type: sequelize_1.DataTypes.STRING,
-        allowNull: false,
-    },
-    status: {
-        type: sequelize_1.DataTypes.STRING,
-        allowNull: false,
-    },
-    observation: {
-        type: sequelize_1.DataTypes.STRING,
-        allowNull: true,
+        defaultValue: null,
     },
     description: {
         type: sequelize_1.DataTypes.STRING,
-        allowNull: true,
+        defaultValue: null,
     },
-    acceptLateMunite: {
-        type: sequelize_1.DataTypes.BOOLEAN,
-        defaultValue: false,
-    },
-    diplicate: {
-        type: sequelize_1.DataTypes.BOOLEAN,
-        defaultValue: false,
-    },
-    notification: {
-        type: sequelize_1.DataTypes.BOOLEAN,
-        defaultValue: false,
+    date: {
+        type: sequelize_1.DataTypes.DATE,
+        defaultValue: null,
     },
 }, {
     sequelize: sequelize_2.default,
-    tableName: "member_schedule",
-    timestamps: true,
+    tableName: "personnel_shedule_freedays",
     paranoid: true,
-    collate: sequelize_2.COLLATE,
     charset: sequelize_2.CHARSET,
+    collate: sequelize_2.COLLATE,
 });
-MemberScheduleModel.belongsTo(members_model_1.default, {
-    as: "member",
-    foreignKey: "memberId",
-});
-MemberScheduleModel.belongsTo(users_model_1.default, {
+SheduleFreeDaysModel.belongsTo(users_model_1.default, {
     as: "userCreated",
     foreignKey: "userCreatedId",
 });
-MemberScheduleModel.belongsTo(users_model_1.default, {
+SheduleFreeDaysModel.belongsTo(users_model_1.default, {
     as: "userUpdated",
     foreignKey: "userUpdatedId",
 });
-MemberScheduleModel.belongsTo(personnel_service_model_1.default, {
-    as: "service",
-    foreignKey: "personnelServiceId",
-});
-exports.default = MemberScheduleModel;
+exports.default = SheduleFreeDaysModel;

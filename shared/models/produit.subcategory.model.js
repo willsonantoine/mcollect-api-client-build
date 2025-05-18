@@ -38,8 +38,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
 const sequelize_2 = __importStar(require("../utils/sequelize"));
-const produit_category_model_copy_1 = __importDefault(require("./produit.category.model copy"));
+const produit_category_model_1 = __importDefault(require("./produit.category.model"));
 const users_model_1 = __importDefault(require("./users.model"));
+const site_mode_1 = __importDefault(require("./site.mode"));
 class ProduitSubCategorieModel extends sequelize_1.Model {
 }
 ProduitSubCategorieModel.init({
@@ -71,7 +72,7 @@ ProduitSubCategorieModel.init({
     charset: sequelize_2.CHARSET,
     collate: sequelize_2.COLLATE,
 });
-ProduitSubCategorieModel.belongsTo(produit_category_model_copy_1.default, {
+ProduitSubCategorieModel.belongsTo(produit_category_model_1.default, {
     as: "category",
     foreignKey: "categoryId",
 });
@@ -86,5 +87,9 @@ ProduitSubCategorieModel.belongsTo(users_model_1.default, {
 ProduitSubCategorieModel.belongsTo(users_model_1.default, {
     as: "userDeleted",
     foreignKey: "userDeletedId",
+});
+ProduitSubCategorieModel.belongsTo(site_mode_1.default, {
+    as: "site",
+    foreignKey: "siteId",
 });
 exports.default = ProduitSubCategorieModel;

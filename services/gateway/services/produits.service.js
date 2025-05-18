@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const produit_category_model_copy_1 = __importDefault(require("../../../shared/models/produit.category.model copy"));
+const produit_category_model_1 = __importDefault(require("../../../shared/models/produit.category.model"));
 const produit_model_1 = __importDefault(require("../../../shared/models/produit.model"));
 const produit_stock_model_1 = __importDefault(require("../../../shared/models/produit.stock.model"));
 const produit_subcategory_model_1 = __importDefault(require("../../../shared/models/produit.subcategory.model"));
@@ -47,7 +47,7 @@ class ProduitService {
         this.updateStock = async (id, data) => {
             return await this.productStock.update(data, { where: { id } });
         };
-        this.produitCateg = produit_category_model_copy_1.default;
+        this.produitCateg = produit_category_model_1.default;
         this.produitSubCateg = produit_subcategory_model_1.default;
         this.produitModel = produit_model_1.default;
         this.productStock = produit_stock_model_1.default;

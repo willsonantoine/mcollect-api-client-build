@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
-const produit_category_model_copy_1 = __importDefault(require("../../../shared/models/produit.category.model copy"));
+const produit_category_model_1 = __importDefault(require("../../../shared/models/produit.category.model"));
 const produit_model_1 = __importDefault(require("../../../shared/models/produit.model"));
 const produit_subcategory_model_1 = __importDefault(require("../../../shared/models/produit.subcategory.model"));
 const users_model_1 = __importDefault(require("../../../shared/models/users.model"));
@@ -53,7 +53,7 @@ class ProduitService {
                     {
                         model: produit_subcategory_model_1.default,
                         as: "subCategory",
-                        include: [{ model: produit_category_model_copy_1.default, as: "category" }],
+                        include: [{ model: produit_category_model_1.default, as: "category" }],
                     },
                     {
                         model: users_model_1.default,
@@ -80,13 +80,16 @@ class ProduitService {
             await this.produitCategory.update({ userDeletedId }, { where: { id } });
             return await this.produitCategory.destroy({ where: { id } });
         };
-        this.findAllProduitCategory = async ({ limit, offset, search, }) => {
+        this.findAllProduitCategory = async ({ limit, offset, search, siteId, }) => {
             const whereTarget = {};
             if (search) {
                 whereTarget[sequelize_1.Op.or] = [
                     { name: { [sequelize_1.Op.like]: `%${search}%` } },
                     { description: { [sequelize_1.Op.like]: `%${search}%` } },
                 ];
+            }
+            if (siteId) {
+                whereTarget.siteId = siteId;
             }
             return await this.produitCategory.findAndCountAll({
                 where: whereTarget,
@@ -112,7 +115,7 @@ class ProduitService {
             await this.produitCategory.update({ userCreatedId }, { where: { id } });
             return await this.produitSubCategory.destroy({ where: { id } });
         };
-        this.findAllSubCategoryProduct = async ({ limit, offset, search, categoryId, }) => {
+        this.findAllSubCategoryProduct = async ({ limit, offset, search, categoryId, siteId, }) => {
             const whereTarget = {};
             if (search) {
                 whereTarget[sequelize_1.Op.or] = [
@@ -123,6 +126,9 @@ class ProduitService {
             if (categoryId) {
                 whereTarget.categoryId = categoryId;
             }
+            if (siteId) {
+                whereTarget.siteId = siteId;
+            }
             return await this.produitSubCategory.findAndCountAll({
                 where: whereTarget,
                 limit,
@@ -131,11 +137,11 @@ class ProduitService {
                     ["createdAt", "desc"],
                     ["updatedAt", "desc"],
                 ],
-                include: [{ model: produit_category_model_copy_1.default, as: "category" }],
+                include: [{ model: produit_category_model_1.default, as: "category" }],
             });
         };
         this.produitModel = produit_model_1.default;
-        this.produitCategory = produit_category_model_copy_1.default;
+        this.produitCategory = produit_category_model_1.default;
         this.produitSubCategory = produit_subcategory_model_1.default;
     }
 }

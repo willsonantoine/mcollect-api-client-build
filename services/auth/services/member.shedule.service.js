@@ -7,6 +7,7 @@ const sequelize_1 = require("sequelize");
 const member_schedule_model_1 = __importDefault(require("../../../shared/models/member.schedule.model"));
 const personnel_service_model_1 = __importDefault(require("../../../shared/models/personnel.service.model"));
 const members_model_1 = __importDefault(require("../../../shared/models/members.model"));
+const shedule_freedays_model_1 = __importDefault(require("../../../shared/models/shedule.freedays.model"));
 class MemberSheduleService {
     constructor() {
         this.create = async (data) => {
@@ -84,7 +85,43 @@ class MemberSheduleService {
                 },
             });
         };
+        // Free days
+        this.createFreeDays = async (data) => {
+            return await this.sheduleFreeDaysModel.create(data);
+        };
+        this.updateFreeDays = async (id, data) => {
+            return await this.sheduleFreeDaysModel.update(data, { where: { id } });
+        };
+        this.findFreeDays = async (date) => {
+            return await this.sheduleFreeDaysModel.findOne({ where: { date } });
+        };
+        this.findFreeDaysByPk = async (id) => {
+            return await this.sheduleFreeDaysModel.findByPk(id);
+        };
+        this.deleteFreeDays = async (id) => {
+            return await this.sheduleFreeDaysModel.destroy({ where: { id } });
+        };
+        this.findAllFreeDays = async ({ limit, offset, search, }) => {
+            const whereTarget = {};
+            if (search) {
+                whereTarget[sequelize_1.Op.or] = [
+                    { name: { [sequelize_1.Op.like]: `%${search}%` } },
+                    { descrition: { [sequelize_1.Op.like]: `%${search}%` } },
+                    { date: { [sequelize_1.Op.like]: `%${search}%` } },
+                ];
+            }
+            return await this.sheduleFreeDaysModel.findAndCountAll({
+                limit,
+                offset,
+                where: whereTarget,
+                order: [
+                    ["createdAt", "desc"],
+                    ["updatedAt", "desc"],
+                ],
+            });
+        };
         this.memberSheduleModel = member_schedule_model_1.default;
+        this.sheduleFreeDaysModel = shedule_freedays_model_1.default;
     }
 }
 exports.default = MemberSheduleService;

@@ -38,71 +38,53 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
 const sequelize_2 = __importStar(require("../utils/sequelize"));
-const members_model_1 = __importDefault(require("./members.model"));
 const users_model_1 = __importDefault(require("./users.model"));
-const personnel_service_model_1 = __importDefault(require("./personnel.service.model"));
-class MemberScheduleModel extends sequelize_1.Model {
+const site_mode_1 = __importDefault(require("./site.mode"));
+class ProduitCategorieModel extends sequelize_1.Model {
 }
-MemberScheduleModel.init({
+ProduitCategorieModel.init({
     id: {
-        type: sequelize_1.DataTypes.UUID,
-        defaultValue: sequelize_1.DataTypes.UUIDV4,
+        type: sequelize_1.DataTypes.STRING,
         primaryKey: true,
+        defaultValue: sequelize_1.DataTypes.UUIDV4,
     },
-    dateStart: {
-        type: sequelize_1.DataTypes.STRING,
-        allowNull: false,
-    },
-    dateEnd: {
-        type: sequelize_1.DataTypes.STRING,
-        allowNull: false,
-    },
-    status: {
-        type: sequelize_1.DataTypes.STRING,
-        allowNull: false,
-    },
-    observation: {
+    name: {
         type: sequelize_1.DataTypes.STRING,
         allowNull: true,
     },
     description: {
-        type: sequelize_1.DataTypes.STRING,
+        type: sequelize_1.DataTypes.TEXT("long"),
         allowNull: true,
     },
-    acceptLateMunite: {
-        type: sequelize_1.DataTypes.BOOLEAN,
-        defaultValue: false,
+    image: {
+        type: sequelize_1.DataTypes.TEXT,
+        defaultValue: null,
     },
-    diplicate: {
-        type: sequelize_1.DataTypes.BOOLEAN,
-        defaultValue: false,
-    },
-    notification: {
+    synchro: {
         type: sequelize_1.DataTypes.BOOLEAN,
         defaultValue: false,
     },
 }, {
     sequelize: sequelize_2.default,
-    tableName: "member_schedule",
-    timestamps: true,
+    tableName: "produit_category",
     paranoid: true,
-    collate: sequelize_2.COLLATE,
     charset: sequelize_2.CHARSET,
+    collate: sequelize_2.COLLATE,
 });
-MemberScheduleModel.belongsTo(members_model_1.default, {
-    as: "member",
-    foreignKey: "memberId",
-});
-MemberScheduleModel.belongsTo(users_model_1.default, {
+ProduitCategorieModel.belongsTo(users_model_1.default, {
     as: "userCreated",
     foreignKey: "userCreatedId",
 });
-MemberScheduleModel.belongsTo(users_model_1.default, {
+ProduitCategorieModel.belongsTo(users_model_1.default, {
     as: "userUpdated",
     foreignKey: "userUpdatedId",
 });
-MemberScheduleModel.belongsTo(personnel_service_model_1.default, {
-    as: "service",
-    foreignKey: "personnelServiceId",
+ProduitCategorieModel.belongsTo(users_model_1.default, {
+    as: "userDeleted",
+    foreignKey: "userDeletedId",
 });
-exports.default = MemberScheduleModel;
+ProduitCategorieModel.belongsTo(site_mode_1.default, {
+    as: "site",
+    foreignKey: "siteId",
+});
+exports.default = ProduitCategorieModel;

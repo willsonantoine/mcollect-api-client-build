@@ -276,7 +276,7 @@ class UserController {
                     });
                     return;
                 }
-                const password = (0, vars_1.generateStrongPassword)();
+                const password = (0, vars_1.generateOtp)();
                 await this.userService.setPassword(findPyPhone.id, password);
                 await this.messageService.send({
                     message: `Bonjour voici votre nouveau mot de passe : ${password} . si vous n'ete pas a l'origine veuillez contacter l'administrateur`,
@@ -486,14 +486,6 @@ class UserController {
                     return;
                 }
                 const existName = await this.userService.findByUsername(username);
-                if (existName && existName.id !== userId) {
-                    (0, response_util_1.setResponse)({
-                        res,
-                        statusCode: 400,
-                        message: `Désolé ce nom d'utilisateur n'est pas disponible`,
-                    });
-                    return;
-                }
                 const verifyPassword = await this.userService.verifyPassword({
                     password: oldPassword,
                     hash: (existName === null || existName === void 0 ? void 0 : existName.password) || "",

@@ -10,7 +10,7 @@ class MemberSheduleController {
     constructor() {
         this.create = async (req, res) => {
             try {
-                const { memberId, personnelServiceId, dateStart, dateEnd, status, observation, description, } = req.body;
+                const { memberId, personnelServiceId, dateStart, dateEnd, status, observation, description, notification, diplicate, acceptLateMunite, } = req.body;
                 const find = await this.memberSheduleService.findScheduleByMemberId(memberId, personnelServiceId, dateStart, dateEnd);
                 if (find) {
                     (0, response_util_1.setResponse)({
@@ -28,6 +28,9 @@ class MemberSheduleController {
                     status,
                     observation,
                     description,
+                    notification,
+                    diplicate,
+                    acceptLateMunite,
                 });
                 (0, response_util_1.setResponse)({ res, data: response });
             }
@@ -81,7 +84,7 @@ class MemberSheduleController {
         this.update = async (req, res) => {
             try {
                 const { id } = req.params;
-                const { memberId, personnelServiceId, dateStart, dateEnd, status, observation, description, } = req.body;
+                const { memberId, personnelServiceId, dateStart, dateEnd, status, observation, description, notification, diplicate, acceptLateMunite, } = req.body;
                 const response = await this.memberSheduleService.update(id, {
                     memberId,
                     personnelServiceId: personnelServiceId,
@@ -90,6 +93,9 @@ class MemberSheduleController {
                     status,
                     observation,
                     description,
+                    notification,
+                    diplicate,
+                    acceptLateMunite,
                 });
                 (0, response_util_1.setResponse)({ res, data: response });
             }
@@ -107,6 +113,112 @@ class MemberSheduleController {
                 const { id } = req.params;
                 const response = await this.memberSheduleService.delete(id);
                 (0, response_util_1.setResponse)({ res, data: response });
+            }
+            catch (error) {
+                (0, response_util_1.setResponse)({
+                    res,
+                    statusCode: 500,
+                    message: error.message,
+                    error,
+                });
+            }
+        };
+        // Shedule free days
+        this.createFreeDays = async (req, res) => {
+            try {
+                const { name, date, description } = req.body;
+                const userCreatedId = req.user.id;
+                const find = await this.memberSheduleService.findFreeDays(date);
+                if (find) {
+                    (0, response_util_1.setResponse)({
+                        res,
+                        message: `Cette date existe déja dans le system`,
+                        statusCode: 400,
+                    });
+                    return;
+                }
+                const result = await this.memberSheduleService.createFreeDays({
+                    date,
+                    name,
+                    description,
+                    userCreatedId,
+                });
+                (0, response_util_1.setResponse)({ res, data: result });
+            }
+            catch (error) {
+                (0, response_util_1.setResponse)({
+                    res,
+                    statusCode: 500,
+                    message: error.message,
+                    error,
+                });
+            }
+        };
+        this.updateFreeDays = async (req, res) => {
+            try {
+                const { name, date, description } = req.body;
+                const userUpdatedId = req.user.id;
+                const id = req.params.id;
+                const find = await this.memberSheduleService.findFreeDaysByPk(id);
+                if (!find) {
+                    (0, response_util_1.setResponse)({
+                        res,
+                        message: `Cette date n'existe pas dans le system`,
+                        statusCode: 400,
+                    });
+                    return;
+                }
+                const result = await this.memberSheduleService.updateFreeDays(id, {
+                    date,
+                    name,
+                    description,
+                    userUpdatedId,
+                });
+                (0, response_util_1.setResponse)({ res, data: result });
+            }
+            catch (error) {
+                (0, response_util_1.setResponse)({
+                    res,
+                    statusCode: 500,
+                    message: error.message,
+                    error,
+                });
+            }
+        };
+        this.deleteFreeDays = async (req, res) => {
+            try {
+                const id = req.params.id;
+                const find = await this.memberSheduleService.findFreeDaysByPk(id);
+                if (!find) {
+                    (0, response_util_1.setResponse)({
+                        res,
+                        message: `Cette date n'existe pas dans le system`,
+                        statusCode: 400,
+                    });
+                    return;
+                }
+                const result = await this.memberSheduleService.deleteFreeDays(id);
+                (0, response_util_1.setResponse)({ res, data: result });
+            }
+            catch (error) {
+                (0, response_util_1.setResponse)({
+                    res,
+                    statusCode: 500,
+                    message: error.message,
+                    error,
+                });
+            }
+        };
+        this.findAllFreeDays = async (req, res) => {
+            const { search } = req.query;
+            try {
+                const { limit, offset } = (0, vars_1.pagination)(req);
+                const result = await this.memberSheduleService.findAllFreeDays({
+                    search: String(search),
+                    limit,
+                    offset,
+                });
+                (0, response_util_1.setResponse)({ res, data: result });
             }
             catch (error) {
                 (0, response_util_1.setResponse)({

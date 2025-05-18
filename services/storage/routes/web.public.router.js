@@ -33,4 +33,6 @@ WebPublicRouter.get("/auth/resend-otp/:token/:phone", users_controller_1.default
 WebPublicRouter.post("/auth/verify-otp/:token", users_controller_1.default.verifyOtp);
 WebPublicRouter.post("/auth/login/:token", users_controller_1.default.login);
 WebPublicRouter.post("/auth/recover-password/:token", (0, vars_1.Validate)(auth_validator_1.default.recoverPassword), users_controller_1.default.recoverPassword);
+WebPublicRouter.get("/auth/get-profil", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.User, authToken_1.EnumRoles.Guest]), web_public_controller_1.default.getProfil);
+WebPublicRouter.put("/auth/update-profil", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.User, authToken_1.EnumRoles.Guest]), users_controller_1.default.changeLoginInfos);
 exports.default = WebPublicRouter;

@@ -44,11 +44,13 @@ const site_mode_1 = __importDefault(require("../../../shared/models/site.mode"))
 const site_visite_model_1 = __importDefault(require("../../../shared/models/site.visite.model"));
 const vars_1 = require("../../../shared/utils/vars");
 const produit_model_1 = __importDefault(require("../../../shared/models/produit.model"));
-const produit_category_model_copy_1 = __importDefault(require("../../../shared/models/produit.category.model copy"));
+const produit_category_model_1 = __importDefault(require("../../../shared/models/produit.category.model"));
 const produit_subcategory_model_1 = __importDefault(require("../../../shared/models/produit.subcategory.model"));
 const currency_model_1 = __importDefault(require("../../../shared/models/currency.model"));
 const site_members_model_1 = __importDefault(require("../../../shared/models/site.members.model"));
 const members_category_model_1 = __importDefault(require("../../../shared/models/members.category.model"));
+const users_model_1 = __importDefault(require("../../../shared/models/users.model"));
+const users_roles_1 = __importDefault(require("../../../shared/models/users.roles"));
 class WebPublicService {
     constructor() {
         this.getSiteInfos = async ({ token }) => {
@@ -207,7 +209,7 @@ class WebPublicService {
                         attributes: ["id", "name", "description", "image"],
                         include: [
                             {
-                                model: produit_category_model_copy_1.default,
+                                model: produit_category_model_1.default,
                                 as: "category",
                                 attributes: ["id", "name", "description", "image"],
                             },
@@ -255,7 +257,7 @@ class WebPublicService {
                 attributes: ["id", "name", "description", "image", "categoryId"],
                 include: [
                     {
-                        model: produit_category_model_copy_1.default,
+                        model: produit_category_model_1.default,
                         as: "category",
                         attributes: ["id", "name", "description", "image"],
                     },
@@ -308,15 +310,28 @@ class WebPublicService {
                 ],
             });
         };
+        this.getProfil = async (userId) => {
+            return await this.userModel.findByPk(userId, {
+                attributes: ["id", "username", "phone", "email", "bio", "createdAt"],
+                include: [
+                    {
+                        model: users_roles_1.default,
+                        as: "role",
+                        attributes: ["name", "description"],
+                    },
+                ],
+            });
+        };
         this.siteModel = site_mode_1.default;
         this.siteContaint = site_containt_model_1.default;
         this.siteContaintCategory = site_containt_category_model_1.default;
         this.siteSubscriber = members_model_1.default;
         this.siteVisite = site_visite_model_1.default;
         this.produitsModel = produit_model_1.default;
-        this.categoryModel = produit_category_model_copy_1.default;
+        this.categoryModel = produit_category_model_1.default;
         this.subCategoryModel = produit_subcategory_model_1.default;
         this.siteMember = site_members_model_1.default;
+        this.userModel = users_model_1.default;
     }
 }
 exports.default = WebPublicService;

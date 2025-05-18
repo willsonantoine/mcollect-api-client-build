@@ -163,6 +163,23 @@ class WebPublicController {
                 });
             }
         };
+        this.getProfil = async (req, res) => {
+            try {
+                const UserId = req.user.id;
+                const result = await this.webPublicService.getProfil(UserId);
+                (0, response_util_1.setResponse)({
+                    res,
+                    data: result,
+                });
+            }
+            catch (error) {
+                (0, response_util_1.setResponse)({
+                    res,
+                    statusCode: 500,
+                    error,
+                });
+            }
+        };
         this.webPublicService = new web_public_service_1.default();
     }
 }

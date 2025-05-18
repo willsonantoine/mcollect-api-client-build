@@ -141,12 +141,13 @@ class ProduitController {
         };
         this.loadCategoryProduit = async (req, res) => {
             try {
-                const { search } = req.query;
+                const { search, siteId } = req.query;
                 const { limit, offset } = (0, vars_1.pagination)(req);
                 const produit = await this.produitService.findAllProduitCategory({
                     limit,
                     offset,
                     search: String(search),
+                    siteId: String(siteId),
                 });
                 (0, response_util_1.setResponse)({ res, data: produit });
             }
@@ -218,6 +219,7 @@ class ProduitController {
                     offset,
                     search: String(search),
                     categoryId: String(categoryId),
+                    siteId: String(siteId),
                 });
                 (0, response_util_1.setResponse)({ res, data: produit });
             }
