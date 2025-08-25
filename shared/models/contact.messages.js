@@ -72,6 +72,10 @@ ContactMessageModel.init({
         type: sequelize_1.DataTypes.DATE,
         defaultValue: null,
     },
+    hasReadByUserId: {
+        type: sequelize_1.DataTypes.STRING,
+        defaultValue: null,
+    },
 }, {
     sequelize: sequelize_2.default,
     tableName: "web_contact_messages",

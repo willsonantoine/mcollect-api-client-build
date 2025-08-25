@@ -9,7 +9,7 @@ class DashboardController {
     constructor() {
         this.getDashboard = async (req, res) => {
             try {
-                const filterId = req.query.filterId || "month"; // Default filter is 'month'
+                const filterId = req.query.filterId || "month";
                 const result = await this.dashboardService.getDashInfo(filterId);
                 return (0, response_util_1.setResponse)({
                     res,

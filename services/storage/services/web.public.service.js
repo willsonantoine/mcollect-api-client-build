@@ -172,7 +172,7 @@ class WebPublicService {
                 ];
             }
             const whereCateg = {};
-            if (subCategoryId) {
+            if (categoryId) {
                 whereCateg.categoryId = categoryId;
             }
             return await this.produitsModel.findAndCountAll({
@@ -231,6 +231,9 @@ class WebPublicService {
         };
         this.getProductCategorie = async ({ token }) => {
             // On récupère tous les produits visibles sur le web et appartenant au site
+            const site = await this.siteModel.findOne({
+                where: { token },
+            });
             const produits = await this.produitsModel.findAll({
                 where: {
                     showOnWeb: true,
@@ -242,6 +245,22 @@ class WebPublicService {
                         as: "site",
                         where: { token },
                         attributes: [],
+                    },
+                    {
+                        model: produit_subcategory_model_1.default,
+                        as: "subCategory",
+                        where: {
+                            siteId: site === null || site === void 0 ? void 0 : site.id,
+                        },
+                        include: [
+                            {
+                                model: produit_category_model_1.default,
+                                as: "category",
+                                where: {
+                                    siteId: site === null || site === void 0 ? void 0 : site.id,
+                                },
+                            },
+                        ],
                     },
                 ],
             });
@@ -325,11 +344,8 @@ class WebPublicService {
         this.siteModel = site_mode_1.default;
         this.siteContaint = site_containt_model_1.default;
         this.siteContaintCategory = site_containt_category_model_1.default;
-        this.siteSubscriber = members_model_1.default;
         this.siteVisite = site_visite_model_1.default;
         this.produitsModel = produit_model_1.default;
-        this.categoryModel = produit_category_model_1.default;
-        this.subCategoryModel = produit_subcategory_model_1.default;
         this.siteMember = site_members_model_1.default;
         this.userModel = users_model_1.default;
     }

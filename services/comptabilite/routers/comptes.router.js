@@ -25,4 +25,5 @@ ComptesRouter.get("/journal-years", (0, authToken_1.AuthToken)([authToken_1.Enum
 ComptesRouter.put("/select-account/:id", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), comptes_controller_1.default.selectAccount);
 ComptesRouter.get("/part-socia-by-account", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), comptes_controller_1.default.getPartSocialByAccount);
 ComptesRouter.get("/getNextAccount", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), comptes_controller_1.default.getNextAccount);
+ComptesRouter.get("/all-accounts-balances", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), comptes_controller_1.default.getAllAccountsBalances);
 exports.default = ComptesRouter;

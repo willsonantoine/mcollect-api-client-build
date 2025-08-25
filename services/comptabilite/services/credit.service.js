@@ -13,6 +13,7 @@ const currency_model_1 = __importDefault(require("../../../shared/models/currenc
 const credits_penality_model_1 = __importDefault(require("../../../shared/models/credits.penality.model"));
 const vars_1 = require("../../../shared/utils/vars");
 const operations_service_1 = __importDefault(require("./operations.service"));
+const members_category_model_1 = __importDefault(require("../../../shared/models/members.category.model"));
 class CreditService {
     constructor() {
         this.createCredit = async (data) => {
@@ -23,13 +24,21 @@ class CreditService {
             await this.creditModel.destroy({ where: { id } });
         };
         this.getNextNumber = async () => {
-            const nextNumber = await this.creditModel.count({ paranoid: false });
-            return nextNumber + 1;
+            const result = await this.creditModel.findOne({
+                attributes: [[(0, sequelize_1.fn)("COALESCE", (0, sequelize_1.fn)("MAX", (0, sequelize_1.col)("id")), 0), "maxId"]],
+                paranoid: false,
+            });
+            // Récupère la valeur de maxId retournée par la requête
+            const maxId = (result === null || result === void 0 ? void 0 : result.get("maxId")) || 0;
+            // Retourne maxId + 1
+            return maxId + 1;
         };
         this.payerCredit = async ({ id, amount, userCreateId, operationId, }) => {
             const credit = await this.creditModel.findByPk(id);
             if (credit) {
-                await this.creditModel.update({ remaining: (credit.remaining || 0) - amount }, { where: { id }, returning: true });
+                const reste = (credit.remaining || 0) - amount;
+                const type = reste <= 0 ? "Terminé" : credit.creditType;
+                await this.creditModel.update({ remaining: reste, creditType: type }, { where: { id }, returning: true });
                 const operationSerrviec = new operations_service_1.default();
                 const result = await operationSerrviec.validateOperation(operationId, userCreateId);
                 if (result) {
@@ -133,6 +142,13 @@ class CreditService {
                                     "joinedAt",
                                 ],
                                 where: whereMember,
+                                include: [
+                                    {
+                                        model: members_category_model_1.default,
+                                        as: "fonction",
+                                        attributes: ["id", "name"],
+                                    },
+                                ],
                             },
                             {
                                 model: currency_model_1.default,
@@ -209,6 +225,47 @@ class CreditService {
                 });
                 return result.map((item) => ({
                     reason: item.motif,
+                    count: Number(item.count),
+                }));
+            }
+            catch (error) {
+                console.error("Error fetching reasons with count:", error);
+                return [];
+            }
+        };
+        this.getAllGuarantees = async ({ month, year, date2, date1, gender, }) => {
+            try {
+                const whereTarget = date1 && date2
+                    ? {
+                        createdAt: {
+                            [sequelize_1.Op.and]: [
+                                (0, sequelize_1.literal)(`DATE(CreditModel.createAt) >= '${date1}'`),
+                                (0, sequelize_1.literal)(`DATE(CreditModel.createAt) <= '${date2}'`),
+                            ],
+                        },
+                    }
+                    : {};
+                if (year) {
+                    whereTarget[sequelize_1.Op.and] = [
+                        ...(whereTarget[sequelize_1.Op.and] || []),
+                        (0, sequelize_1.where)((0, sequelize_1.fn)("YEAR", (0, sequelize_1.col)("date_debut")), year),
+                    ];
+                }
+                if (month) {
+                    whereTarget[sequelize_1.Op.and] = [
+                        ...(whereTarget[sequelize_1.Op.and] || []),
+                        (0, sequelize_1.where)((0, sequelize_1.fn)("MONTH", (0, sequelize_1.col)("date_debut")), month),
+                    ];
+                }
+                const result = await this.creditModel.findAll({
+                    where: whereTarget,
+                    attributes: ["guarantees", [(0, sequelize_1.fn)("COUNT", (0, sequelize_1.col)("motif")), "count"]],
+                    group: ["guarantees"],
+                    raw: true,
+                    order: [[(0, sequelize_1.literal)("guarantees"), "asc"]],
+                });
+                return result.map((item) => ({
+                    reason: item.guarantees,
                     count: Number(item.count),
                 }));
             }
@@ -348,7 +405,7 @@ class CreditService {
                 },
             });
         };
-        this.updateCreditType = async ({ type, id, userId, observation, reste_a_payer, startDate, endDate, }) => {
+        this.updateCreditType = async ({ type, id, userId, observation, reste_a_payer, startDate, endDate, reason, }) => {
             const findCredit = await this.creditModel.findByPk(id);
             if (findCredit) {
                 const observation_ = `Le ${(0, vars_1.getDateTimeFull)()} = ${observation}. ::: ${findCredit.updateObservation || ""}`;
@@ -360,6 +417,7 @@ class CreditService {
                     remaining: reste_a_payer,
                     startDate,
                     endDate: endDate,
+                    reason,
                 }, {
                     where: { id },
                     returning: true,

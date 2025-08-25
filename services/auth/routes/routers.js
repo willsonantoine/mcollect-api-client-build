@@ -39,7 +39,7 @@ AuthRouter.put("/set-show-on-website/:memberId/:siteId", (0, authToken_1.AuthTok
 // Members fonctions Router
 AuthRouter.post("/fonctions/create", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.SuperAdmin]), member_fonction_controller_1.default.create);
 AuthRouter.put("/fonctions/update/:id", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.SuperAdmin]), member_fonction_controller_1.default.update);
-AuthRouter.get("/fonctions/get", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.SuperAdmin]), member_fonction_controller_1.default.findAll);
+AuthRouter.get("/fonctions/get", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.SuperAdmin, authToken_1.EnumRoles.Admin]), member_fonction_controller_1.default.findAll);
 AuthRouter.delete("/fonctions/delete/:id", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.SuperAdmin]), member_fonction_controller_1.default.delete);
 AuthRouter.post("/create-account/:token", users_controller_1.default.create);
 AuthRouter.post("/presence/import", member_presence_controller_1.default.createPresences);

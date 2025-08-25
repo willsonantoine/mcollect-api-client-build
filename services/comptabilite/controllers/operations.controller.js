@@ -102,9 +102,10 @@ class OperationsController {
         };
         this.findAllOperations = async (req, res) => {
             try {
-                const { search, date1, date2, currencyId, type, accountId = "", status, } = req.query;
+                const { search, date1, date2, currencyId, type, accountId = "", status, parentOperationId, filterBy = "", } = req.query;
                 const { limit, offset } = (0, vars_1.pagination)(req);
                 const status_ = status === "true" ? true : status === "false" ? false : undefined;
+                const userCreatedId = req.user.id;
                 const result = await this.operationsService.findAll({
                     currencyId,
                     date1,
@@ -115,6 +116,9 @@ class OperationsController {
                     date2,
                     type,
                     accountId,
+                    parentOperationId,
+                    filterBy,
+                    userCreatedId,
                 });
                 (0, response_util_1.setResponse)({ res, data: result });
             }

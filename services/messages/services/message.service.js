@@ -150,7 +150,9 @@ class MessageService {
         this.entrepriseModel = entreprise_model_1.default;
         this.membersService = new members_service_1.default();
         this.url = "https://api.mcollecte.com/messages/send";
-        this.getToken().then((r) => console.log("SMS Token retrieved"));
+        setTimeout(() => {
+            this.getToken();
+        }, 20000);
     }
 }
 exports.default = MessageService;

@@ -18,4 +18,5 @@ CreditRouter.get("/reason", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Ad
 CreditRouter.get("/totals-by-type", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), credit_controller_1.default.getTotalByTypeAndCurrency);
 CreditRouter.get("/penality/:days", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), credit_controller_1.default.getPenality);
 CreditRouter.put("/update-type", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), credit_controller_1.default.updateCreditType);
+CreditRouter.get("/get-all-guarantees", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), credit_controller_1.default.getAllGuarantees);
 exports.default = CreditRouter;

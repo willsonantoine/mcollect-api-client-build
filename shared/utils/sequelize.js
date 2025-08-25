@@ -8,7 +8,7 @@ const sequelize_1 = require("sequelize");
 const dotenv_1 = __importDefault(require("dotenv"));
 const constant_1 = require("./constant");
 exports.CHARSET = "utf8mb4";
-exports.COLLATE = "utf8mb4_0900_ai_ci";
+exports.COLLATE = "utf8mb4_general_ci";
 dotenv_1.default.config();
 const sequelize = new sequelize_1.Sequelize({
     dialect: constant_1.DB_DIALECT,
@@ -35,5 +35,13 @@ sequelize
 })
     .catch((error) => {
     console.log("Error to connect database:=>", error);
+});
+sequelize
+    .sync({ alter: true })
+    .then(() => {
+    console.log("Database synchronized");
+})
+    .catch((err) => {
+    console.error("Error synchronizing database:", err);
 });
 exports.default = sequelize;

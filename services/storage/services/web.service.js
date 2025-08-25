@@ -71,7 +71,9 @@ class WebService {
                     endDate.setHours(0, 0, 0, 0); // Set to start of next week
                     break;
                 default:
-                    throw new Error(`Invalid type: ${type}`);
+                    startDate = new Date("1970-01-01"); // Fallback to epoch start
+                    endDate = new Date(); // Current date as end date
+                    break;
             }
             // Helper function to calculate counts with date filtering and previous year comparison
             const calculateCounts = async (model, // Replace 'any' with the actual type of your model

@@ -135,6 +135,10 @@ class MembersService {
                     ],
                 },
             };
+            if (type !== undefined && type !== null && type !== "") {
+                // Vérifie si type est défini et non vide
+                whereTarget.type = type; // Ajoute la condition sur le type
+            }
             const genders = await this.membersModel.findAll({
                 where: whereTarget,
                 attributes: ["gender", [(0, sequelize_1.fn)("COUNT", (0, sequelize_1.col)("gender")), "count"]],
@@ -149,13 +153,8 @@ class MembersService {
                 raw: true,
                 order: [[(0, sequelize_1.literal)("type"), "asc"]],
             });
-            const whereClause = Object.assign({}, whereTarget); // Copie de whereTarget pour éviter de le modifier directement
-            if (type !== undefined && type !== null && type !== "") {
-                // Vérifie si type est défini et non vide
-                whereClause.type = type; // Ajoute la condition sur le type
-            }
             const typesByGenders = await this.membersModel.findAll({
-                where: whereClause, // Utilise la clause where modifiée
+                where: whereTarget, // Utilise la clause where modifiée
                 attributes: [
                     "type",
                     "gender", // Inclure le genre dans les attributs

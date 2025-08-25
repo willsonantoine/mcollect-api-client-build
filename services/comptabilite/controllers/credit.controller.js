@@ -103,7 +103,7 @@ class CreditController {
                     return;
                 }
                 // 5. Create additional operations
-                await this.createAdditionalOperations(data, accountObject.memberId, userId, credit); // Call the new method
+                await this.createAdditionalOperations(data, accountObject.memberId, userId, credit, operationResult.Operation.id); // Call the new method
                 // 6. Set the success response
                 (0, response_util_1.setResponse)({
                     res,
@@ -160,7 +160,7 @@ class CreditController {
             }
         };
         // Helper function to create additional operations
-        this.createAdditionalOperations = async (data, memberId, userId, credit) => {
+        this.createAdditionalOperations = async (data, memberId, userId, credit, operationId) => {
             const additionnalOperation = data.additionnalOperation || [];
             console.log(additionnalOperation);
             for (const item of additionnalOperation) {
@@ -186,6 +186,7 @@ class CreditController {
                         numero: currentNumber,
                         memberId: memberId,
                         userCreatedId: userId,
+                        parentOperationId: operationId,
                     });
                     if (status) {
                         console.log(`Additonnal operation created :: ${currentNumber}`);
@@ -303,7 +304,7 @@ class CreditController {
         this.updateCreditType = async (req, res) => {
             try {
                 const userId = req.user.id;
-                const { id, creditType, observation, reste_a_payer, startDate, endDate } = req.body;
+                const { id, creditType, observation, reste_a_payer, startDate, endDate, reason, } = req.body;
                 const result = await this.creditService.updateCreditType({
                     id,
                     type: creditType,
@@ -312,6 +313,7 @@ class CreditController {
                     startDate,
                     endDate,
                     userId,
+                    reason,
                 });
                 (0, response_util_1.setResponse)({
                     res,
@@ -362,6 +364,20 @@ class CreditController {
                 const { id, deletedReason } = req.body;
                 const userId = req.user.id;
                 const result = await this.creditService.deleteCredit(id, userId, deletedReason);
+                (0, response_util_1.setResponse)({ res, data: result });
+            }
+            catch (error) {
+                (0, response_util_1.setResponse)({
+                    res,
+                    message: `Une erreur interne s'est produite`,
+                    statusCode: 500,
+                    error,
+                });
+            }
+        };
+        this.getAllGuarantees = async (req, res) => {
+            try {
+                const result = await this.creditService.getAllGuarantees(req.query);
                 (0, response_util_1.setResponse)({ res, data: result });
             }
             catch (error) {

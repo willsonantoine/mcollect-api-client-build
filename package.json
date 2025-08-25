@@ -1,27 +1,15 @@
-
 {
   "name": "mconnect_backend",
   "version": "1.1.0",
   "main": "src/services/gateway/src/index.ts",
   "scripts": {
-    "dev.gateway": "nodemon src/services/gateway/index.ts",
-    "dev.auth": "nodemon src/services/auth/index.ts",
-    "dev.message": "nodemon src/services/messages/index.ts",
-    "dev.comptabilite": "nodemon src/services/comptabilite/index.ts",
-    "dev.database": "nodemon src/services/database/index.ts",
-    "dev.storage": "nodemon src/services/storage/index.ts",
-    "start.gateway": "node services/gateway/index.js",
-    "start.auth": "node services/auth/index.js",
-    "start.message": "node services/messages/index.js",
-    "start.comptabilite": "node services/comptabilite/index.js",
-    "start.storage": "node services/storage/index.js",
-    "start.database": "node services/database/index.js",
+    "dev": "nodemon src/services/index.ts",
     "build": "rimraf build/ && prettier --write src/ && tsc",
     "lint": "eslint .",
     "test": "jest --coverage",
     "predeploy": "npm run lint && npm test",
     "clean": "rm -rf build",
-    "start": "concurrently \"npm run start.database\" \"npm run start.gateway\" \"npm run start.auth\" \"npm run start.message\" \"npm run start.comptabilite\" \"npm run start.storage\""
+    "start": "node services/index.js"
   },
   "keywords": [],
   "author": "willsonantoine",

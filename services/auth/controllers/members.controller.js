@@ -8,7 +8,6 @@ const response_util_1 = require("../../../shared/utils/response.util");
 const vars_1 = require("../../../shared/utils/vars");
 const comptes_service_1 = __importDefault(require("../../comptabilite/services/comptes.service"));
 const settings_service_1 = __importDefault(require("../../gateway/services/settings.service"));
-const users_service_1 = __importDefault(require("../services/users.service"));
 class MembersController {
     constructor() {
         this.findAll = async (req, res) => {
@@ -253,7 +252,6 @@ class MembersController {
         this.memberService = new members_service_1.default();
         this.compteService = new comptes_service_1.default();
         this.settingsService = new settings_service_1.default();
-        this.userService = new users_service_1.default();
     }
 }
 exports.default = new MembersController();

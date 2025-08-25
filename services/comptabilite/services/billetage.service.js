@@ -20,8 +20,13 @@ class BilletageService {
             return await this.operationBilletage.findAndCountAll({
                 where: { operationId },
                 attributes: ["id", "value", "qte"],
+                order: [["value", "desc"]], // Tri du plus petit au plus grand
                 include: [
-                    { model: currency_model_1.default, attributes: ["id", "name"], as: "currency" },
+                    {
+                        model: currency_model_1.default,
+                        attributes: ["id", "name"],
+                        as: "currency",
+                    },
                 ],
             });
         };

@@ -59,7 +59,7 @@ class ProduitController {
         };
         this.loadProduit = async (req, res) => {
             try {
-                const { search, subCategoryId, siteId, type = "" } = req.query;
+                const { search, subCategoryId, siteId, type = "", categoryId, } = req.query;
                 const { limit, offset } = (0, vars_1.pagination)(req);
                 const produit = await this.produitService.findAllProduit({
                     type: String(type),
@@ -68,6 +68,7 @@ class ProduitController {
                     search: String(search),
                     SubCategoryId: String(subCategoryId),
                     siteId: String(siteId),
+                    categoryId: String(categoryId) || undefined,
                 });
                 (0, response_util_1.setResponse)({ res, data: produit });
             }
@@ -85,7 +86,8 @@ class ProduitController {
             try {
                 const userCreatedId = req.user.id;
                 const data = req.body;
-                const exist = await this.produitService.findProduitCategoryByName(req.body.name);
+                const siteId = req.body.siteId;
+                const exist = await this.produitService.findProduitCategoryByName(req.body.name, siteId);
                 if (exist) {
                     (0, response_util_1.setResponse)({
                         res,
@@ -165,6 +167,16 @@ class ProduitController {
             try {
                 const userCreatedId = req.user.id;
                 const data = req.body;
+                const siteId = req.body.siteId;
+                const exist = await this.produitService.findSubCategoryProduitByName(req.body.name, siteId, data.categoryId);
+                if (exist) {
+                    (0, response_util_1.setResponse)({
+                        res,
+                        message: `Cette sous catégorie existe déjà`,
+                        statusCode: 400,
+                    });
+                    return;
+                }
                 const produit = await this.produitService.createSubCategoryProduit(Object.assign(Object.assign({}, data), { userCreatedId }));
                 (0, response_util_1.setResponse)({ res, data: produit });
             }

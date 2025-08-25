@@ -115,6 +115,7 @@ class ComptesService {
                             "fullname",
                             "phone",
                             "img",
+                            "number",
                             "mail",
                             "gender",
                             "etat_civil",
@@ -149,58 +150,98 @@ class ComptesService {
             const account = await this.comptesModel.findByPk(accountId, {
                 include: [{ model: compte_classes_model_1.default, as: "classe" }],
             });
+            const currencyBalances = [];
             if (account) {
-                const whereCredit = {
-                    type: "CREDIT",
-                    accountIdFrom: accountId,
-                    currencyId,
-                    operationId: {
-                        [sequelize_1.Op.not]: null, // This ensures id_operation is not null
+                // Fetch all distinct currencyIds for the account within the date range
+                const currencyIds = await this.journalModel.findAll({
+                    attributes: ["currencyId"],
+                    where: {
+                        accountIdFrom: accountId,
+                        createdAt: {
+                            [sequelize_1.Op.gte]: date1,
+                            [sequelize_1.Op.lte]: date2,
+                        },
                     },
-                    createdAt: {
-                        [sequelize_1.Op.and]: [
-                            (0, sequelize_1.literal)(`DATE(JournalModel.createAt) >= '${date1}'`),
-                            (0, sequelize_1.literal)(`DATE(JournalModel.createAt) <= '${date2}'`),
-                        ],
-                    },
-                };
-                const sumAmountCredit = await this.journalModel.sum("amount", {
-                    where: whereCredit,
+                    group: ["currencyId"],
+                    raw: true,
                 });
-                const whereDebit = {
-                    type: "DEBIT",
-                    accountIdFrom: accountId,
-                    currencyId,
-                    operationId: {
-                        [sequelize_1.Op.not]: null, // This ensures id_operation is not null
-                    },
-                    createdAt: {
-                        [sequelize_1.Op.and]: [
-                            (0, sequelize_1.literal)(`DATE(JournalModel.createAt) >= '${date1}'`),
-                            (0, sequelize_1.literal)(`DATE(JournalModel.createAt) <= '${date2}'`),
-                        ],
-                    },
+                const currencyIdsList = currencyIds.map((item) => item.currencyId);
+                // Iterate through each currency
+                for (const currentCurrencyId of currencyIdsList) {
+                    const whereCredit = {
+                        type: "CREDIT",
+                        accountIdFrom: accountId,
+                        currencyId: currentCurrencyId,
+                        operationId: {
+                            [sequelize_1.Op.not]: null,
+                        },
+                        createdAt: {
+                            [sequelize_1.Op.and]: [
+                                (0, sequelize_1.literal)(`DATE(createAt) >= '${date1}'`),
+                                (0, sequelize_1.literal)(`DATE(createAt) <= '${date2}'`),
+                            ],
+                        },
+                    };
+                    const sumAmountCredit = await this.journalModel.sum("amount", {
+                        where: whereCredit,
+                    });
+                    const whereDebit = {
+                        type: "DEBIT",
+                        accountIdFrom: accountId,
+                        currencyId: currentCurrencyId,
+                        operationId: {
+                            [sequelize_1.Op.not]: null,
+                        },
+                        createdAt: {
+                            [sequelize_1.Op.and]: [
+                                (0, sequelize_1.literal)(`DATE(createAt) >= '${date1}'`),
+                                (0, sequelize_1.literal)(`DATE(createAt) <= '${date2}'`),
+                            ],
+                        },
+                    };
+                    const sumAmountDebit = await this.journalModel.sum("amount", {
+                        where: whereDebit,
+                    });
+                    let sold = 0;
+                    if (account.formuleBalance) {
+                        if (account.formuleBalance === "D-C") {
+                            sold = sumAmountDebit - sumAmountCredit;
+                        }
+                        else {
+                            sold = sumAmountCredit + sumAmountDebit;
+                        }
+                    }
+                    else if ((_a = account.classe) === null || _a === void 0 ? void 0 : _a.number) {
+                        sold = ["1", "3", "7", "4"].includes(account.classe.number)
+                            ? sumAmountCredit - sumAmountDebit
+                            : sumAmountDebit - sumAmountCredit;
+                    }
+                    currencyBalances.push({
+                        name: currentCurrencyId,
+                        credit: sumAmountCredit || 0,
+                        debit: sumAmountDebit || 0,
+                        sold,
+                    });
+                }
+                // Find balance for the main currency (specified in the arguments)
+                const mainCurrencyBalance = currencyBalances.find((balance) => balance.name === currencyId);
+                // If the main currency balance doesn't exist, create a zeroed-out one
+                const mainCredit = mainCurrencyBalance ? mainCurrencyBalance.credit : 0;
+                const mainDebit = mainCurrencyBalance ? mainCurrencyBalance.debit : 0;
+                const mainSold = mainCurrencyBalance ? mainCurrencyBalance.sold : 0;
+                return {
+                    currencyBalances,
+                    credit: mainCredit,
+                    debit: mainDebit,
+                    sold: mainSold,
                 };
-                const sumAmountDebit = await this.journalModel.sum("amount", {
-                    where: whereDebit,
-                });
-                let sold = 0;
-                if (account.formuleBalance) {
-                    if (account.formuleBalance === "D-C") {
-                        sold = sumAmountDebit - sumAmountCredit;
-                    }
-                    else {
-                        sold = sumAmountCredit + sumAmountDebit;
-                    }
-                }
-                else if ((_a = account.classe) === null || _a === void 0 ? void 0 : _a.number) {
-                    sold = ["1", "3", "7", "4"].includes(account.classe.number)
-                        ? sumAmountCredit - sumAmountDebit
-                        : sumAmountDebit - sumAmountCredit;
-                }
-                return { credit: sumAmountCredit, debit: sumAmountDebit, sold };
             }
-            return { credit: 0, debit: 0, sold: 0 };
+            return {
+                currencyBalances: [],
+                credit: 0,
+                debit: 0,
+                sold: 0,
+            };
         };
         this.findAccountByNumber = async (number) => {
             return this.comptesModel.findOne({ where: { number } });
@@ -442,6 +483,149 @@ class ComptesService {
             return await this.comptesModel.increment(["favorit"], {
                 where: { id: accountId },
             });
+        };
+        this.getAllAccountsBalances = async ({ date1, date2, limit, offset, classId, currencyId, }) => {
+            const whereTarget = {
+                createdAt: {
+                    [sequelize_1.Op.and]: [
+                        (0, sequelize_1.literal)(`DATE(JournalModel.createAt) >= '${date1}'`),
+                        (0, sequelize_1.literal)(`DATE(JournalModel.createAt) <= '${date2}'`),
+                    ],
+                },
+                operationId: {
+                    [sequelize_1.Op.not]: null,
+                },
+            };
+            const includeAccountFrom = {
+                require: true,
+                model: compte_model_1.default,
+                as: "accountFrom",
+                attributes: [],
+                include: [
+                    Object.assign({ require: true, model: compte_classes_model_1.default, as: "classe", attributes: [] }, (classId ? { where: { id: classId } } : {})),
+                ],
+            };
+            const includeOperation = {
+                require: true,
+                model: operations_model_1.default,
+                as: "operation",
+                attributes: [],
+                include: [
+                    Object.assign({ require: true, model: currency_model_1.default, as: "currency", attributes: [] }, (currencyId ? { where: { id: currencyId } } : {})),
+                ],
+            };
+            // 1️⃣ Récupération de TOUTES les données pour calculer le count global et les totaux
+            const allResults = await this.journalModel.findAll({
+                attributes: [
+                    [(0, sequelize_1.col)("accountFrom.id"), "accountId"],
+                    [(0, sequelize_1.col)("accountFrom.designation"), "accountName"],
+                    [(0, sequelize_1.col)("operation->currency.id"), "currencyId"],
+                    [(0, sequelize_1.col)("operation->currency.designation"), "currencyName"],
+                    [
+                        (0, sequelize_1.fn)("SUM", (0, sequelize_1.literal)(`CASE WHEN JournalModel.type = 'CREDIT' THEN JournalModel.montant ELSE 0 END`)),
+                        "credit",
+                    ],
+                    [
+                        (0, sequelize_1.fn)("SUM", (0, sequelize_1.literal)(`CASE WHEN JournalModel.type = 'DEBIT' THEN JournalModel.montant ELSE 0 END`)),
+                        "debit",
+                    ],
+                    [(0, sequelize_1.col)("accountFrom->classe.numero"), "classeNumber"],
+                ],
+                where: whereTarget,
+                include: [includeAccountFrom, includeOperation],
+                group: [
+                    (0, sequelize_1.col)("accountFrom.id"),
+                    (0, sequelize_1.col)("operation->currency.id"),
+                    (0, sequelize_1.col)("accountFrom.designation"),
+                    (0, sequelize_1.col)("operation->currency.designation"),
+                    (0, sequelize_1.col)("accountFrom->classe.numero"),
+                ],
+                raw: true,
+            });
+            const totalCount = allResults.length; // nombre total d'enregistrements AVANT pagination
+            // 2️⃣ Appliquer pagination pour récupérer seulement la page demandée
+            const pagedResults = await this.journalModel.findAll({
+                attributes: [
+                    [(0, sequelize_1.col)("accountFrom.id"), "accountId"],
+                    [(0, sequelize_1.col)("accountFrom.designation"), "accountName"],
+                    [(0, sequelize_1.col)("operation->currency.id"), "currencyId"],
+                    [(0, sequelize_1.col)("operation->currency.designation"), "currencyName"],
+                    [
+                        (0, sequelize_1.fn)("SUM", (0, sequelize_1.literal)(`CASE WHEN JournalModel.type = 'CREDIT' THEN JournalModel.montant ELSE 0 END`)),
+                        "credit",
+                    ],
+                    [
+                        (0, sequelize_1.fn)("SUM", (0, sequelize_1.literal)(`CASE WHEN JournalModel.type = 'DEBIT' THEN JournalModel.montant ELSE 0 END`)),
+                        "debit",
+                    ],
+                    [(0, sequelize_1.col)("accountFrom->classe.numero"), "classeNumber"],
+                ],
+                where: whereTarget,
+                include: [includeAccountFrom, includeOperation],
+                group: [
+                    (0, sequelize_1.col)("accountFrom.id"),
+                    (0, sequelize_1.col)("operation->currency.id"),
+                    (0, sequelize_1.col)("accountFrom.designation"),
+                    (0, sequelize_1.col)("operation->currency.designation"),
+                    (0, sequelize_1.col)("accountFrom->classe.numero"),
+                ],
+                limit,
+                offset,
+                raw: true,
+            });
+            // 3️⃣ Transformer les résultats en balances
+            const balances = pagedResults.map((row) => {
+                let sold = 0;
+                if (row.classeNumber) {
+                    sold = ["1", "3", "7", "4"].includes(row.classeNumber.toString())
+                        ? row.credit - row.debit
+                        : row.debit - row.credit;
+                }
+                else {
+                    sold = row.credit - row.debit;
+                }
+                return {
+                    accountId: row.accountId,
+                    accountName: row.accountName,
+                    currency: {
+                        id: row.currencyId,
+                        name: row.currencyName,
+                    },
+                    credit: Number(row.credit) || 0,
+                    debit: Number(row.debit) || 0,
+                    sold,
+                };
+            });
+            // 4️⃣ Calcul des totaux globaux (sur toutes les données, pas seulement la page)
+            const totalByCurrency = {};
+            allResults.forEach((row) => {
+                let sold = 0;
+                if (row.classeNumber) {
+                    sold = ["1", "3", "7", "4"].includes(row.classeNumber.toString())
+                        ? row.credit - row.debit
+                        : row.debit - row.credit;
+                }
+                else {
+                    sold = row.credit - row.debit;
+                }
+                const key = row.currencyId;
+                if (!totalByCurrency[key]) {
+                    totalByCurrency[key] = {
+                        currency: { id: row.currencyId, name: row.currencyName },
+                        credit: 0,
+                        debit: 0,
+                        sold: 0,
+                    };
+                }
+                totalByCurrency[key].credit += Number(row.credit) || 0;
+                totalByCurrency[key].debit += Number(row.debit) || 0;
+                totalByCurrency[key].sold += sold;
+            });
+            return {
+                count: totalCount, // total pour pagination
+                balances,
+                totals: Object.values(totalByCurrency),
+            };
         };
         this.comptesModel = compte_model_1.default;
         this.classeModel = compte_classes_model_1.default;

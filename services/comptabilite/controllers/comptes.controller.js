@@ -147,6 +147,7 @@ class CompteController {
                             debit: currentBalance.debit + reportedBalance.debit,
                         },
                         reportedBalance,
+                        all: currentBalance.currencyBalances,
                     },
                 });
             }
@@ -341,6 +342,30 @@ class CompteController {
                     message: `Une erreur interne s'est produite`,
                     statusCode: 500,
                     error,
+                });
+            }
+        };
+        this.getAllAccountsBalances = async (req, res) => {
+            try {
+                const { limit, offset } = (0, vars_1.pagination)(req);
+                const { date1, date2, classId, currencyId } = req.query;
+                console.log(req.query);
+                const result = await this.comptesService.getAllAccountsBalances({
+                    date1: date1,
+                    date2: date2,
+                    limit,
+                    offset,
+                    classId: classId,
+                    currencyId: currencyId,
+                });
+                (0, response_util_1.setResponse)({ res, data: result });
+            }
+            catch (error) {
+                (0, response_util_1.setResponse)({
+                    error,
+                    statusCode: 500,
+                    res,
+                    message: `Une erreur interne s'est produite`,
                 });
             }
         };

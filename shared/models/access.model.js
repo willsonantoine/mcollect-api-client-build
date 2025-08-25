@@ -77,5 +77,6 @@ AccessModel.init({
     paranoid: true,
     charset: sequelize_2.CHARSET,
     collate: sequelize_2.COLLATE,
+    timestamps: true,
 });
 exports.default = AccessModel;

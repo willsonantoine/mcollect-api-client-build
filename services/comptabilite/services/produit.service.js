@@ -24,7 +24,7 @@ class ProduitService {
         this.findProduit = async (id) => {
             return await this.produitModel.findOne({ where: { id } });
         };
-        this.findAllProduit = async ({ limit, offset, search, SubCategoryId, siteId, type, }) => {
+        this.findAllProduit = async ({ limit, offset, search, SubCategoryId, categoryId, siteId, type, }) => {
             const whereTarget = {};
             if (SubCategoryId) {
                 whereTarget.subCategoryId = SubCategoryId;
@@ -41,6 +41,10 @@ class ProduitService {
             if (siteId) {
                 whereTarget.siteId = siteId;
             }
+            const whereCategory = {};
+            if (categoryId) {
+                whereCategory.id = categoryId;
+            }
             return await this.produitModel.findAndCountAll({
                 where: whereTarget,
                 order: [
@@ -52,8 +56,16 @@ class ProduitService {
                 include: [
                     {
                         model: produit_subcategory_model_1.default,
+                        required: true,
                         as: "subCategory",
-                        include: [{ model: produit_category_model_1.default, as: "category" }],
+                        include: [
+                            {
+                                required: true,
+                                model: produit_category_model_1.default,
+                                where: whereCategory,
+                                as: "category",
+                            },
+                        ],
                     },
                     {
                         model: users_model_1.default,
@@ -101,8 +113,17 @@ class ProduitService {
                 ],
             });
         };
-        this.findProduitCategoryByName = async (name) => {
-            return await this.produitCategory.findOne({ where: { name } });
+        this.findProduitCategoryByName = async (name, siteId) => {
+            return await this.produitCategory.findOne({ where: { name, siteId } });
+        };
+        this.findSubCategoryProduitByName = async (name, siteId, categoryId) => {
+            return await this.produitSubCategory.findOne({
+                where: {
+                    name,
+                    siteId,
+                    categoryId,
+                },
+            });
         };
         // Sous Category
         this.createSubCategoryProduit = async (data) => {

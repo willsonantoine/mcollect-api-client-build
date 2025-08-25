@@ -14,7 +14,6 @@ const users_roles_1 = __importDefault(require("../../../shared/models/users.role
 const comptes_service_1 = __importDefault(require("./comptes.service"));
 const vars_1 = require("../../../shared/utils/vars");
 const exercice_comptable_1 = __importDefault(require("../../../shared/models/exercice.comptable"));
-const exercice_comptable_2 = __importDefault(require("../../../shared/models/exercice.comptable"));
 const journal_model_1 = __importDefault(require("../../../shared/models/journal.model"));
 const operations_billetage_model_1 = __importDefault(require("../../../shared/models/operations.billetage.model"));
 const journal_service_1 = __importDefault(require("./journal.service"));
@@ -22,6 +21,7 @@ const credit_service_1 = __importDefault(require("./credit.service"));
 const billetage_service_1 = __importDefault(require("./billetage.service"));
 const succursale_model_1 = __importDefault(require("../../../shared/models/succursale.model"));
 const CurrencyList_1 = require("../../../shared/storage/CurrencyList");
+const sequelize_2 = __importDefault(require("../../../shared/utils/sequelize"));
 var OperationType;
 (function (OperationType) {
     OperationType["DEPOT"] = "DEPOT";
@@ -34,7 +34,7 @@ var OperationType;
 })(OperationType || (exports.OperationType = OperationType = {}));
 class OperationsServices {
     constructor() {
-        this.findAll = async ({ accountId, currencyId, date1, date2, type, limit, offset, search, status = true, }) => {
+        this.findAll = async ({ accountId, currencyId, date1, date2, type, limit, offset, search, status = true, parentOperationId, filterBy, userCreatedId = null, }) => {
             const whereTarget = {
                 status,
                 createdAt: {
@@ -50,6 +50,9 @@ class OperationsServices {
                     { number: { [sequelize_1.Op.like]: `%${search}%` } },
                 ];
             }
+            if (parentOperationId) {
+                whereTarget.parentOperationId = parentOperationId;
+            }
             if (accountId) {
                 whereTarget[sequelize_1.Op.or] = [
                     ...(whereTarget[sequelize_1.Op.or] || []),
@@ -62,6 +65,9 @@ class OperationsServices {
             }
             if (type) {
                 whereTarget.type = type;
+            }
+            if (filterBy === "my") {
+                whereTarget.userCreatedId = userCreatedId;
             }
             const totalByType = await this.operationModel.findAll({
                 attributes: [
@@ -130,11 +136,14 @@ class OperationsServices {
             return await this.operationModel.update(data, { where: { id } });
         };
         this.getNextNumber = async () => {
-            const countOperations = await this.operationModel.count({
-                paranoid: false,
+            var _a;
+            const result = await sequelize_2.default.query(`SELECT COALESCE(MAX(numero), 0) + 1 AS next_number FROM operations;`, {
+                type: sequelize_1.QueryTypes.SELECT,
             });
-            const nextNumber = countOperations + 1;
-            return String(nextNumber);
+            // Comme QueryTypes.SELECT retourne un tableau, on prend le premier élément
+            const nextNumber = (_a = result[0]) === null || _a === void 0 ? void 0 : _a.next_number;
+            console.log("New number ::: ", nextNumber);
+            return String(nextNumber + 1);
         };
         this.findCurrencys = async () => {
             const countCurrency = await this.currencyModel.count();
@@ -263,7 +272,6 @@ class OperationsServices {
         };
         this.operationModel = operations_model_1.default;
         this.currencyModel = currency_model_1.default;
-        this.exerciceComptable = exercice_comptable_1.default;
         this.journalModel = journal_model_1.default;
         this.operationBilletageModel = operations_billetage_model_1.default;
         this.journalService = new journal_service_1.default();
@@ -280,7 +288,7 @@ class OperationsServices {
         let date1 = "2000-01-01";
         let date2 = (0, vars_1.formatDateSql)(new Date());
         if (accountCredit.isPeriodique) {
-            const periode = await exercice_comptable_2.default.findOne({
+            const periode = await exercice_comptable_1.default.findOne({
                 where: { isDefault: true },
             });
             if (periode) {

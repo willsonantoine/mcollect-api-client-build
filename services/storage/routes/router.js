@@ -11,9 +11,14 @@ const print_controller_1 = __importDefault(require("../controllers/print.control
 const synchro_router_1 = __importDefault(require("./synchro.router"));
 const web_router_1 = __importDefault(require("./web.router"));
 const web_public_router_1 = __importDefault(require("./web.public.router"));
+const path_1 = __importDefault(require("path"));
 const StorageRouter = express_1.default.Router();
-StorageRouter.post("/storage/save", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), storage_1.upload.single("file"), storage_1.validateFileUpload, storage_controller_1.default.create);
-StorageRouter.get("/storage/find", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), storage_controller_1.default.findAll);
+// Chemin absolu depuis la racine du projet
+const uploadsPath = path_1.default.join(process.cwd(), "uploads");
+console.log("Serving static files from:", uploadsPath);
+StorageRouter.use("/", express_1.default.static(uploadsPath));
+StorageRouter.post("/save", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), storage_1.upload.single("file"), storage_1.validateFileUpload, storage_controller_1.default.create);
+StorageRouter.get("/find", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), storage_controller_1.default.findAll);
 StorageRouter.get("/print/members", (0, authToken_1.AuthToken)([authToken_1.EnumRoles.Admin, authToken_1.EnumRoles.SuperAdmin]), print_controller_1.default.generateMembersList);
 StorageRouter.use("/synchro", synchro_router_1.default);
 StorageRouter.use("/web", web_router_1.default);

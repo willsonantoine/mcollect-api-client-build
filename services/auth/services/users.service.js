@@ -211,7 +211,7 @@ class UserService {
             }
             // 5. Re-fetch the user's access permissions to include the newly created ones.
             return await this.accessUser.findAll({
-                where: { userId },
+                where: { userId: userId },
                 attributes: ["id", "createdAt", "status", "updatedAt", "accessId"],
                 include: [
                     {
@@ -286,7 +286,7 @@ class UserService {
         this.memberService = new members_service_1.default();
         this.accessUser = access_users_model_1.default;
         this.accessModel = access_model_1.default;
-        setTimeout(() => this.initUser().then(() => console.log("Utilisateur initialisé avec success")), 8000);
+        setTimeout(() => this.initUser().then(() => console.log("Utilisateur initialisé avec success")), 80000);
     }
 }
 exports.default = UserService;

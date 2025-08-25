@@ -105,10 +105,6 @@ OperationModel.init({
         allowNull: true,
         field: "compte_to",
     },
-    numero: {
-        type: sequelize_1.DataTypes.STRING,
-        defaultValue: null,
-    },
     date_save: {
         type: sequelize_1.DataTypes.DATE,
         allowNull: true,
@@ -125,9 +121,10 @@ OperationModel.init({
         field: "ref",
     },
     number: {
-        type: sequelize_1.DataTypes.STRING,
+        type: sequelize_1.DataTypes.INTEGER,
         allowNull: true,
         field: "numero",
+        unique: true,
     },
     status: {
         type: sequelize_1.DataTypes.INTEGER,
@@ -225,5 +222,9 @@ OperationModel.belongsTo(succursale_model_1.default, {
 OperationModel.belongsTo(operations_exemple_model_1.default, {
     as: "model",
     foreignKey: "id_transaction",
+});
+OperationModel.belongsTo(OperationModel, {
+    as: "parentOperation",
+    foreignKey: "parentOperationId",
 });
 exports.default = OperationModel;

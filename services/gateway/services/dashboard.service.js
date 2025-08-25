@@ -12,6 +12,7 @@ const moment_1 = __importDefault(require("moment"));
 const credits_model_1 = __importDefault(require("../../../shared/models/credits.model"));
 const messages_1 = __importDefault(require("../../../shared/models/messages"));
 const produit_model_1 = __importDefault(require("../../../shared/models/produit.model"));
+const site_mode_1 = __importDefault(require("../../../shared/models/site.mode"));
 class DashboardService {
     constructor() {
         this.membersModel = members_model_1.default;
@@ -21,6 +22,7 @@ class DashboardService {
         this.creditModel = credits_model_1.default;
         this.messageModel = messages_1.default;
         this.productModel = produit_model_1.default;
+        this.siteModel = site_mode_1.default;
     }
     async getDashInfo(filterId) {
         const now = (0, moment_1.default)();
@@ -36,7 +38,7 @@ class DashboardService {
             case "year":
                 startDate = now.clone().startOf("year");
                 break;
-            case "all":
+            case "All":
                 startDate = null;
                 break;
             default:
@@ -88,7 +90,7 @@ class DashboardService {
                 return 0;
             }
         };
-        const [totalMembers, totalOperations, totalAccounts, totalUsers, totalCredits, totalMessages, totalProduct, monthlyMembers, monthlyOperations, monthlyAccounts, monthlyUsers, monthlyMessages, monthlyCredits, lastMonthMembers, lastMonthOperations, lastMonthAccounts, lastMonthUsers, lastMonthCredits, lastMonthMessages, lastMonthProduct, operationsByDateCount,] = await Promise.all([
+        const [totalMembers, totalOperations, totalAccounts, totalUsers, totalCredits, totalMessages, totalProduct, totalSite, monthlyMembers, monthlyOperations, monthlyAccounts, monthlyUsers, monthlyMessages, monthlyCredits, monthSite, lastMonthMembers, lastMonthOperations, lastMonthAccounts, lastMonthUsers, lastMonthCredits, lastMonthMessages, lastMonthProduct, lastMonthSite, operationsByDateCount,] = await Promise.all([
             fetchCount(this.membersModel),
             fetchCount(this.operationsModel),
             fetchCount(this.accountModel),
@@ -96,12 +98,14 @@ class DashboardService {
             fetchCount(this.creditModel),
             fetchCount(this.messageModel),
             fetchCount(this.productModel),
+            fetchCount(this.siteModel),
             fetchCount(this.membersModel, whereClause),
             fetchCount(this.operationsModel, whereClause),
             fetchCount(this.accountModel, whereClause),
             fetchCount(this.userModel, whereClause),
             fetchCount(this.creditModel, whereClause),
             fetchCount(this.messageModel, whereClause),
+            fetchCount(this.siteModel, whereClause),
             fetchCount(this.membersModel, lastMonthWhereClause),
             fetchCount(this.operationsModel, lastMonthWhereClause),
             fetchCount(this.accountModel, lastMonthWhereClause),
@@ -109,6 +113,7 @@ class DashboardService {
             fetchCount(this.creditModel, lastMonthWhereClause),
             fetchCount(this.messageModel, lastMonthWhereClause),
             fetchCount(this.productModel, lastMonthWhereClause),
+            fetchCount(this.siteModel, lastMonthWhereClause),
             fetchOperationsByDateCount((startDate === null || startDate === void 0 ? void 0 : startDate.toDate()) || null, endDate.toDate(), filterId),
         ]);
         const calculateProgression = (current, previous) => {
@@ -127,6 +132,7 @@ class DashboardService {
                 credits: totalCredits,
                 messages: totalMessages,
                 produect: totalProduct,
+                totalSite: totalSite,
             },
             monthly: {
                 members: monthlyMembers,
@@ -135,6 +141,7 @@ class DashboardService {
                 users: monthlyUsers,
                 credits: monthlyCredits,
                 messages: monthlyMessages,
+                sites: monthSite,
             },
             progression: {
                 members: calculateProgression(monthlyMembers, lastMonthMembers),
@@ -143,6 +150,7 @@ class DashboardService {
                 users: calculateProgression(monthlyUsers, lastMonthUsers),
                 credit: calculateProgression(monthlyCredits, lastMonthCredits),
                 messages: calculateProgression(monthlyMessages, lastMonthMessages),
+                sites: calculateProgression(monthSite, lastMonthSite),
             },
             operationsByDate: operationsByDateList,
         };
@@ -245,7 +253,7 @@ class DashboardService {
                     };
                 });
             }
-            else if (filterId === "all") {
+            else if (filterId === "All") {
                 operations = await this.operationsModel.findAll({
                     attributes: [
                         [sequelize_1.Sequelize.fn("YEAR", sequelize_1.Sequelize.col("date_save")), "date"],
